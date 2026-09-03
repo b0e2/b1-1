@@ -1,10 +1,26 @@
 /**
  * 애플리케이션 진입점.
- * 각 기능 모듈의 초기화를 호출하고, 상태 변경을 화면에 반영할
- * 렌더러를 구독시키는 조립 지점이다. 규칙은 여기서 갖지 않는다.
+ *
+ * 기능 모듈을 초기화하고 렌더러를 구독시키는 조립 지점이다.
+ * 어떤 규칙도 여기서 갖지 않는다. 각 기능이 자기 상태와 렌더를 소유하고,
+ * 이 파일은 그것들을 순서대로 불러 줄 뿐이다.
  */
+import { getState, subscribe } from './store.js';
+import { initTheme, renderTheme } from './features/theme.js';
+
+/**
+ * 상태가 바뀔 때마다 각 기능의 렌더러에게 현재 상태를 넘긴다.
+ * 무엇을 어떻게 그릴지는 각 렌더러가 스스로 판단한다.
+ */
+const renderApp = (state) => {
+  renderTheme(state);
+};
+
 const initializeApp = () => {
-  // 기능 모듈은 이후 작업에서 연결한다.
+  initTheme();
+
+  subscribe(renderApp);
+  renderApp(getState());
 };
 
 document.addEventListener('DOMContentLoaded', initializeApp);
