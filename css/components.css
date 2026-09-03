@@ -1,0 +1,386 @@
+/* 재사용 컴포넌트와 상태 클래스 */
+
+/* ── 버튼 ───────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  font-weight: 500;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast),
+    color var(--transition-fast), transform var(--transition-fast);
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+.btn--primary {
+  background-color: var(--color-primary);
+  color: var(--color-primary-contrast);
+}
+
+.btn--primary:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.btn--ghost {
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.btn--ghost:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.btn--block {
+  width: 100%;
+}
+
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-pill);
+  color: var(--color-text);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.icon-button:hover {
+  background-color: var(--color-surface-muted);
+  color: var(--color-primary);
+}
+
+/* 테마 토글: 현재 테마에 맞는 아이콘 하나만 보인다 */
+.icon--moon,
+[data-theme="dark"] .icon--sun {
+  display: none;
+}
+
+[data-theme="dark"] .icon--moon {
+  display: block;
+}
+
+/* 햄버거 버튼. 메뉴가 헤더 안으로 들어오는 768px부터는 필요 없다. */
+.nav__toggle {
+  flex-direction: column;
+  gap: 5px;
+}
+
+@media (min-width: 768px) {
+  .nav__toggle {
+    display: none;
+  }
+}
+
+.nav__toggle-bar {
+  width: 1.25rem;
+  height: 2px;
+  border-radius: var(--radius-pill);
+  background-color: currentColor;
+  transition: transform var(--transition-fast), opacity var(--transition-fast);
+}
+
+.nav__toggle[aria-expanded="true"] .nav__toggle-bar:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.nav__toggle[aria-expanded="true"] .nav__toggle-bar:nth-child(2) {
+  opacity: 0;
+}
+
+.nav__toggle[aria-expanded="true"] .nav__toggle-bar:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+.nav__link {
+  position: relative;
+  display: inline-block;
+  padding-block: var(--space-1);
+  color: var(--color-muted);
+  transition: color var(--transition-fast);
+}
+
+.nav__link:hover {
+  color: var(--color-primary);
+}
+
+/* ── Hero ───────────────────────────────────────── */
+.hero__greeting {
+  font-family: var(--font-display);
+  color: var(--color-primary);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hero__title {
+  margin-top: var(--space-3);
+  font-size: var(--text-hero);
+  letter-spacing: -0.02em;
+}
+
+.hero__lead {
+  max-width: 34rem;
+  margin-top: var(--space-6);
+  color: var(--color-muted);
+  font-size: var(--text-lg);
+}
+
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-8);
+}
+
+/* ── 섹션 제목 ──────────────────────────────────── */
+.section__title {
+  font-size: var(--text-2xl);
+  letter-spacing: -0.02em;
+}
+
+.section__lead {
+  margin-top: var(--space-2);
+  color: var(--color-muted);
+}
+
+/* ── About ──────────────────────────────────────── */
+.about__figure {
+  margin: 0;
+}
+
+.about__image {
+  width: 100%;
+  max-width: 20rem;
+  aspect-ratio: 1;
+  border-radius: var(--radius-lg);
+  object-fit: cover;
+  background-color: var(--color-surface-muted);
+  box-shadow: var(--shadow-card);
+}
+
+/* ── 카드 ───────────────────────────────────────── */
+.skill-card,
+.project-card {
+  padding: var(--space-6);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-base), box-shadow var(--transition-base),
+    border-color var(--transition-base);
+}
+
+.skill-card:hover,
+.project-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-card);
+}
+
+.skill-card__title,
+.project-card__title {
+  font-size: var(--text-lg);
+}
+
+.skill-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+.skill-tag {
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  background-color: var(--color-surface-muted);
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+}
+
+/* ── 프로젝트 상태 UI ───────────────────────────── */
+.projects__status:empty {
+  display: none;
+}
+
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-12) var(--space-4);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  margin-top: var(--space-8);
+  color: var(--color-muted);
+  text-align: center;
+}
+
+.spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: var(--radius-pill);
+  animation: spin 800ms linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.filter-btn {
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+  transition: background-color var(--transition-fast), border-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.filter-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.filter-btn.is-active {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-primary-contrast);
+}
+
+/* ── 폼 ─────────────────────────────────────────── */
+.form {
+  display: grid;
+  gap: var(--space-6);
+  margin-top: var(--space-8);
+}
+
+.form__field {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.form__label {
+  font-size: var(--text-sm);
+  font-weight: 500;
+}
+
+.form__input {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.form__input:hover {
+  border-color: var(--color-primary);
+}
+
+.form__input--area {
+  resize: vertical;
+  min-height: 8rem;
+}
+
+.form__input[aria-invalid="true"] {
+  border-color: var(--color-danger);
+}
+
+.form__error {
+  min-height: 1.25rem;
+  color: var(--color-danger);
+  font-size: var(--text-sm);
+}
+
+.form__error:empty,
+.form__success:empty {
+  min-height: 0;
+}
+
+.form__success {
+  color: var(--color-success);
+  font-size: var(--text-sm);
+  text-align: center;
+}
+
+/* ── 푸터 ───────────────────────────────────────── */
+.site-footer__copy {
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+}
+
+.site-footer__link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-muted);
+  font-size: var(--text-sm);
+  transition: color var(--transition-fast);
+}
+
+.site-footer__link:hover {
+  color: var(--color-primary);
+}
+
+/* ── 맨 위로 버튼 ───────────────────────────────── */
+.top-button {
+  position: fixed;
+  right: var(--space-4);
+  bottom: var(--space-4);
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-primary);
+  color: var(--color-primary-contrast);
+  box-shadow: var(--shadow-card);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(0.5rem);
+  transition: opacity var(--transition-base), visibility var(--transition-base),
+    transform var(--transition-base), background-color var(--transition-fast);
+}
+
+.top-button:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.top-button.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* ── 스크롤 등장 효과 ───────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(1.5rem);
+  transition: opacity 600ms ease, transform 600ms ease;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 모션을 줄이는 환경에서는 콘텐츠가 숨겨진 채 남지 않도록 즉시 보인다 */
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
