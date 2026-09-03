@@ -12,9 +12,17 @@ import { $, $$ } from '../dom.js';
 /** 768px부터는 메뉴가 헤더 안으로 들어오므로 햄버거 상태를 유지할 이유가 없다. */
 const DESKTOP_QUERY = '(min-width: 768px)';
 
+/** 헤더 배경이 바뀌는 스크롤 위치. README에 같은 값을 기록해 둔다. */
+const HEADER_THRESHOLD = 60;
+
+/** 맨 위로 버튼이 나타나는 스크롤 위치. */
+const TOP_BUTTON_THRESHOLD = 300;
+
 let header = null;
 let menu = null;
 let menuToggle = null;
+let topButton = null;
+let scrollFrameRequested = false;
 
 /** navigation 조각만 바꾼다. 나머지 상태는 그대로 둔다. */
 const setNavigation = (changes) =>
@@ -49,6 +57,40 @@ const handleAnchorClick = (event) => {
   target.focus({ preventScroll: true });
 };
 
+const handleTopButtonClick = () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+/**
+ * 스크롤 위치를 임계값 기준의 boolean 두 개로 줄인 뒤,
+ * 실제로 달라졌을 때만 상태를 바꾼다. 스크롤 한 번에 수십 번 호출되는
+ * 핸들러에서 매번 setState를 부르면 화면이 바뀌지 않는데도 렌더가 반복된다.
+ */
+const syncScrollState = () => {
+  const offset = window.scrollY;
+  const isScrolled = offset >= HEADER_THRESHOLD;
+  const showTopButton = offset >= TOP_BUTTON_THRESHOLD;
+  const { navigation } = getState();
+
+  if (navigation.isScrolled === isScrolled && navigation.showTopButton === showTopButton) return;
+
+  setNavigation({ isScrolled, showTopButton });
+};
+
+/**
+ * scroll 이벤트는 브라우저가 매우 잦게 발생시키므로,
+ * 다음 화면을 그리기 직전에 한 번만 처리하도록 묶는다.
+ */
+const handleScroll = () => {
+  if (scrollFrameRequested) return;
+
+  scrollFrameRequested = true;
+  requestAnimationFrame(() => {
+    scrollFrameRequested = false;
+    syncScrollState();
+  });
+};
+
 /** 데스크톱 폭으로 넓어지면 열려 있던 모바일 메뉴 상태를 정리한다. */
 const handleDesktopChange = (event) => {
   if (event.matches) closeMenu();
@@ -58,19 +100,28 @@ export const initNavigation = () => {
   header = $('#site-header');
   menu = $('#nav-menu');
   menuToggle = $('#nav-toggle');
+  topButton = $('#top-button');
 
   menuToggle.addEventListener('click', handleMenuToggleClick);
+  topButton.addEventListener('click', handleTopButtonClick);
 
   $$('a[href^="#"]:not(.skip-link)').forEach((anchor) => {
     anchor.addEventListener('click', handleAnchorClick);
   });
 
   window.matchMedia(DESKTOP_QUERY).addEventListener('change', handleDesktopChange);
+  window.addEventListener('scroll', handleScroll, { passive: true });
+
+  // 새로고침으로 스크롤 위치가 복원된 경우를 대비해 초기 상태를 맞춘다.
+  syncScrollState();
 };
 
 /** 상태를 받아 화면에만 반영한다. */
-export const renderNavigation = ({ navigation: { menuOpen } }) => {
+export const renderNavigation = ({ navigation: { menuOpen, isScrolled, showTopButton } }) => {
   menu.classList.toggle('active', menuOpen);
   menuToggle.setAttribute('aria-expanded', String(menuOpen));
   menuToggle.setAttribute('aria-label', menuOpen ? '메뉴 닫기' : '메뉴 열기');
+
+  header.classList.toggle('is-scrolled', isScrolled);
+  topButton.classList.toggle('is-visible', showTopButton);
 };
