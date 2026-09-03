@@ -1,0 +1,75 @@
+/*
+ * 디자인 토큰.
+ * 컴포넌트는 의미 기반 변수(--color-surface 등)만 사용하고,
+ * 실제 색상 값은 이 파일의 테마 블록에서만 정의한다.
+ * 덕분에 테마 전환은 루트의 data-theme 하나로 끝난다.
+ */
+:root {
+  --font-sans: "Noto Sans KR", system-ui, -apple-system, sans-serif;
+  --font-display: "DM Sans", "Noto Sans KR", system-ui, sans-serif;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 2rem;
+  --text-hero: clamp(2rem, 6vw, 3.5rem);
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-24: 6rem;
+
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-pill: 999px;
+
+  --shadow-sm: 0 1px 2px rgb(15 23 42 / 0.08);
+  --shadow-card: 0 12px 32px rgb(15 23 42 / 0.12);
+
+  --transition-fast: 160ms ease;
+  --transition-base: 240ms ease;
+
+  --header-height: 4rem;
+  --container-max: 68rem;
+  --container-narrow: 40rem;
+
+  /* 라이트 테마 (기본) */
+  --color-bg: #f8fafc;
+  --color-surface: #ffffff;
+  --color-surface-muted: #eef2f7;
+  --color-text: #172033;
+  --color-muted: #64748b;
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-primary-contrast: #ffffff;
+  --color-border: #dbe3ee;
+  --color-danger: #c2410c;
+  --color-success: #15803d;
+  --color-header-bg: rgb(248 250 252 / 0.72);
+}
+
+[data-theme="dark"] {
+  --color-bg: #0f172a;
+  --color-surface: #172033;
+  --color-surface-muted: #1e293b;
+  --color-text: #e5edf8;
+  --color-muted: #a9b7ca;
+  --color-primary: #60a5fa;
+  --color-primary-hover: #93c5fd;
+  --color-primary-contrast: #07111f;
+  --color-border: #34445e;
+  --color-danger: #fdba74;
+  --color-success: #86efac;
+  --color-header-bg: rgb(15 23 42 / 0.72);
+
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.25);
+  --shadow-card: 0 14px 36px rgb(0 0 0 / 0.3);
+}

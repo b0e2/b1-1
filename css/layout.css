@@ -1,0 +1,190 @@
+/*
+ * 레이아웃 골격. 모바일 퍼스트로 작성하고 768px, 1024px에서 확장한다.
+ * 좁은 화면의 스타일이 기본값이므로 미디어 쿼리는 항상 min-width만 쓴다.
+ */
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--space-4);
+}
+
+.container--narrow {
+  max-width: var(--container-narrow);
+}
+
+/* ── 헤더와 내비게이션 ─────────────────────────────
+   한 줄 안에서 로고는 왼쪽, 액션은 오른쪽으로 밀어내는
+   1차원 정렬이라 Flexbox를 쓴다. */
+.site-header {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 50;
+  background-color: transparent;
+  transition: background-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.site-header.is-scrolled {
+  background-color: var(--color-header-bg);
+  backdrop-filter: blur(8px);
+  box-shadow: var(--shadow-sm);
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-height: var(--header-height);
+}
+
+.nav__logo {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.nav__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-left: auto;
+}
+
+/* 모바일: 메뉴를 화면 밖으로 숨기고 햄버거로만 연다 */
+.nav__menu {
+  position: fixed;
+  inset: var(--header-height) 0 auto 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: var(--shadow-card);
+  transform: translateY(-120%);
+  visibility: hidden;
+  transition: transform var(--transition-base), visibility var(--transition-base);
+}
+
+.nav__menu.active {
+  transform: translateY(0);
+  visibility: visible;
+}
+
+/* ── 섹션 ───────────────────────────────────────── */
+.hero {
+  display: flex;
+  align-items: center;
+  min-height: 100vh;
+  padding-block: var(--header-height) var(--space-16);
+}
+
+.section {
+  padding-block: var(--space-16);
+}
+
+.section--muted {
+  background-color: var(--color-surface-muted);
+}
+
+.about__grid {
+  display: grid;
+  gap: var(--space-8);
+  margin-top: var(--space-8);
+}
+
+.about__body {
+  display: grid;
+  gap: var(--space-4);
+}
+
+/* ── 카드 그리드 ─────────────────────────────────
+   카드 수가 데이터에 따라 달라지고 열 수가 화면 폭에
+   맞춰 유동적으로 접혀야 하므로 Grid의 auto-fit을 쓴다.
+   미디어 쿼리 없이도 열 수가 스스로 조정된다. */
+.skills__grid,
+.projects__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  gap: var(--space-4);
+  margin-top: var(--space-8);
+}
+
+.projects__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-6);
+}
+
+/* ── 푸터 ───────────────────────────────────────── */
+.site-footer {
+  padding-block: var(--space-8);
+  border-top: 1px solid var(--color-border);
+}
+
+.site-footer__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  text-align: center;
+}
+
+.site-footer__links {
+  display: flex;
+  gap: var(--space-6);
+}
+
+/* ── 태블릿 ─────────────────────────────────────── */
+@media (min-width: 768px) {
+  .container {
+    padding-inline: var(--space-6);
+  }
+
+  /* 메뉴가 헤더 안으로 들어오고 햄버거는 사라진다 */
+  .nav__menu {
+    position: static;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-6);
+    margin-left: auto;
+    padding: 0;
+    background: none;
+    border: none;
+    box-shadow: none;
+    transform: none;
+    visibility: visible;
+  }
+
+  /* 로고는 왼쪽, 메뉴와 액션은 오른쪽으로 붙는다 */
+  .nav__actions {
+    margin-left: var(--space-6);
+  }
+
+  .about__grid {
+    grid-template-columns: 18rem 1fr;
+    align-items: start;
+    gap: var(--space-12);
+  }
+
+  .site-footer__inner {
+    flex-direction: row;
+    justify-content: space-between;
+    text-align: left;
+  }
+}
+
+/* ── 데스크톱 ───────────────────────────────────── */
+@media (min-width: 1024px) {
+  .section {
+    padding-block: var(--space-24);
+  }
+
+  .about__grid {
+    grid-template-columns: 20rem 1fr;
+    gap: var(--space-16);
+  }
+}
