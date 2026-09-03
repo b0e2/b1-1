@@ -7,6 +7,8 @@
  */
 import { getState, subscribe } from './store.js';
 import { initTheme, renderTheme } from './features/theme.js';
+import { initNavigation, renderNavigation } from './features/navigation.js';
+import { initScrollReveal } from './features/scroll-reveal.js';
 
 /**
  * 상태가 바뀔 때마다 각 기능의 렌더러에게 현재 상태를 넘긴다.
@@ -14,10 +16,13 @@ import { initTheme, renderTheme } from './features/theme.js';
  */
 const renderApp = (state) => {
   renderTheme(state);
+  renderNavigation(state);
 };
 
 const initializeApp = () => {
   initTheme();
+  initNavigation();
+  initScrollReveal();
 
   subscribe(renderApp);
   renderApp(getState());
