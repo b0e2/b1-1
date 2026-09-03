@@ -10,6 +10,7 @@ import { initTheme, renderTheme } from './features/theme.js';
 import { initNavigation, renderNavigation } from './features/navigation.js';
 import { initScrollReveal } from './features/scroll-reveal.js';
 import { initProjects, renderProjects } from './features/projects.js';
+import { initContactForm, renderContactForm } from './features/contact-form.js';
 
 /**
  * 상태가 바뀔 때마다 각 기능의 렌더러에게 현재 상태를 넘긴다.
@@ -19,6 +20,7 @@ const renderApp = (state) => {
   renderTheme(state);
   renderNavigation(state);
   renderProjects(state);
+  renderContactForm(state);
 };
 
 const initializeApp = () => {
@@ -26,6 +28,7 @@ const initializeApp = () => {
   initNavigation();
   initScrollReveal();
   initProjects();
+  initContactForm();
 
   subscribe(renderApp);
   renderApp(getState());
