@@ -365,22 +365,26 @@
   transform: translateY(0);
 }
 
-/* ── 스크롤 등장 효과 ───────────────────────────── */
-.reveal {
+/* ── 스크롤 등장 효과 ─────────────────────────────
+   숨김 상태는 js-reveal 클래스 아래에서만 적용한다. 이 클래스는 스크립트가
+   관찰을 시작할 수 있을 때만 붙이므로, 스크립트가 실행되지 않거나 실패해도
+   콘텐츠는 그대로 보인다. 효과는 있으면 좋은 것이지 콘텐츠의 전제가 아니다. */
+.js-reveal .reveal {
   opacity: 0;
   transform: translateY(1.5rem);
   transition: opacity 600ms ease, transform 600ms ease;
 }
 
-.reveal.is-visible {
+.js-reveal .reveal.is-visible {
   opacity: 1;
   transform: translateY(0);
 }
 
-/* 모션을 줄이는 환경에서는 콘텐츠가 숨겨진 채 남지 않도록 즉시 보인다 */
+/* 모션을 줄이는 환경에서는 이동 없이 바로 보인다 */
 @media (prefers-reduced-motion: reduce) {
-  .reveal {
+  .js-reveal .reveal {
     opacity: 1;
     transform: none;
+    transition: none;
   }
 }

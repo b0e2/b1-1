@@ -17,18 +17,19 @@ const REVEAL_THRESHOLD = 0.2;
 const REVEAL_SELECTOR = '.reveal';
 const VISIBLE_CLASS = 'is-visible';
 
-const showAll = (targets) => targets.forEach((target) => target.classList.add(VISIBLE_CLASS));
+/**
+ * 숨김 스타일을 켜는 스위치.
+ * CSS는 이 클래스가 붙어 있을 때만 대상을 숨기므로, 스크립트가 실행되지
+ * 않거나 IntersectionObserver를 못 쓰는 환경에서는 콘텐츠가 그냥 보인다.
+ */
+const ENABLED_CLASS = 'js-reveal';
 
 export const initScrollReveal = () => {
   const targets = $$(REVEAL_SELECTOR);
 
-  if (targets.length === 0) return;
+  if (targets.length === 0 || !('IntersectionObserver' in window)) return;
 
-  // 지원하지 않는 브라우저에서는 효과만 포기하고 콘텐츠는 그대로 보여 준다.
-  if (!('IntersectionObserver' in window)) {
-    showAll(targets);
-    return;
-  }
+  document.documentElement.classList.add(ENABLED_CLASS);
 
   const observer = new IntersectionObserver(
     (entries) => {
