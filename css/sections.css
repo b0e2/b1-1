@@ -63,10 +63,22 @@
  * 타이핑 문구는 두 줄이다. 글자가 한 자씩 늘어나도 아래 콘텐츠가 밀리지 않도록
  * 두 줄 높이를 미리 잡아 두고, 줄바꿈은 원문의 개행을 그대로 살린다.
  * features/typing.js는 이 안의 텍스트만 바꾸고 높이는 건드리지 않는다.
+ *
+ * min-height가 아니라 height로 못 박는 이유가 있다. 스타일시트 일곱 장은 서로
+ * 다른 시점에 적용되므로, 첫 페인트에 잠깐 글자 크기와 칸 너비가 어긋난 중간
+ * 상태가 생긴다. 그때 문구가 세 줄이 되면 min-height는 박스가 커지는 것을 막지
+ * 못해 CTA가 아래로 밀린다. 높이를 고정하면 그 순간을 잘라 내고 지나간다.
  */
 .hero__typing {
   display: block;
-  min-height: 2.5em;
+  /* lh를 모르는 브라우저를 위한 값. 두 줄 높이와 같은 뜻이다. */
+  height: 2.5em;
+  /*
+   * 실제 줄 상자 두 개에 아주 약간의 여유. 줄 상자는 글자가 차지하는 영역보다
+   * 조금 작아서, 딱 맞추면 받침의 아래끝이 잘린다. 여유는 고정값이라 흔들림을 만들지 않는다.
+   */
+  height: calc(2lh + 0.12em);
+  overflow: hidden;
 }
 
 /*
@@ -111,14 +123,11 @@
   margin-top: var(--space-4);
 }
 
-/* ── About ──────────────────────────────────────── */
-
-.about__lead {
-  max-width: 34rem;
-  color: var(--color-muted);
-}
-
-.about__figure {
+/*
+ * 프로필 사진. 지름은 layout.css가 브레이크포인트마다 --hero-photo로 정하고
+ * 여기서는 원형으로 자르는 표현만 맡는다.
+ */
+.hero__figure {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -126,28 +135,37 @@
   margin: 0;
 }
 
-.about__image {
-  width: 13.75rem;
-  height: 13.75rem;
+.hero__image {
+  width: var(--hero-photo);
+  height: var(--hero-photo);
   border-radius: 50%;
   object-fit: cover;
 }
 
-.about__caption {
+.hero__caption {
   display: flex;
   align-items: center;
   gap: var(--space-1);
+  /* 확정 디자인의 캡션은 대문자로 보인다. 표기 자체는 마크업의 Jeong Been 그대로 두고 표현만 바꾼다. */
+  text-transform: uppercase;
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   color: var(--color-muted);
 }
 
 /* 캡션 앞의 짧은 선은 사진과 이름을 잇는 장식이다. */
-.about__caption::before {
+.hero__caption::before {
   content: "";
   width: 1.5rem;
   height: 1px;
   background-color: var(--color-border);
+}
+
+/* ── About ──────────────────────────────────────── */
+
+.about__lead {
+  max-width: 34rem;
+  color: var(--color-muted);
 }
 
 .stats__item {
@@ -203,22 +221,5 @@
 @media (min-width: 768px) {
   .section__title {
     font-size: var(--text-3xl);
-  }
-
-  /*
-   * 768~1024 구간에서는 2열이 되면서 사진 칸이 급격히 좁아진다.
-   * 최대 폭을 묶어 두어 텍스트와 충돌하거나 과하게 커지지 않게 한다.
-   */
-  .about__image {
-    width: 100%;
-    max-width: 12.5rem;
-    height: auto;
-    aspect-ratio: 1;
-  }
-}
-
-@media (min-width: 1024px) {
-  .about__image {
-    max-width: 16.25rem;
   }
 }
