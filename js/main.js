@@ -9,6 +9,7 @@ import { getState, subscribe } from './store.js';
 import { initTheme, renderTheme } from './features/theme.js';
 import { initNavigation, renderNavigation } from './features/navigation.js';
 import { initScrollReveal } from './features/scroll-reveal.js';
+import { initTyping } from './features/typing.js';
 import { initProjects, renderProjects } from './features/projects.js';
 import { initContactForm, renderContactForm } from './features/contact-form.js';
 
@@ -27,6 +28,7 @@ const initializeApp = () => {
   initTheme();
   initNavigation();
   initScrollReveal();
+  initTyping();
   initProjects();
   initContactForm();
 
