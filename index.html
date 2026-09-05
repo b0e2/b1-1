@@ -3,22 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>정빈 | 프론트엔드 포트폴리오</title>
-  <meta name="description" content="웹 프론트엔드를 공부하는 정빈의 포트폴리오입니다.">
+  <title>정빈 | 모바일 엔지니어 포트폴리오</title>
+  <meta name="description" content="Android Native에서 Flutter로 플랫폼을 넓히고 AI와 백엔드로 영역을 확장하는 모바일 엔지니어 정빈의 포트폴리오입니다.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+KR:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <script type="module" src="js/main.js" defer></script>
 </head>
 <body>
-  <a class="skip-link" href="#hero">본문으로 건너뛰기</a>
+  <a class="skip-link" href="#home">본문으로 건너뛰기</a>
 
   <header class="site-header" id="site-header">
     <nav class="nav container" aria-label="주요 메뉴">
-      <a class="nav__logo" href="#hero">Jeongbeen</a>
+      <a class="nav__logo" href="#home">JEONG BEEN</a>
 
       <ul class="nav__menu" id="nav-menu">
+        <li><a class="nav__link" href="#home">Home</a></li>
         <li><a class="nav__link" href="#about">About</a></li>
         <li><a class="nav__link" href="#skills">Skills</a></li>
         <li><a class="nav__link" href="#projects">Projects</a></li>
@@ -26,7 +27,7 @@
       </ul>
 
       <div class="nav__actions">
-        <button class="icon-button" id="theme-toggle" type="button" aria-pressed="false" aria-label="다크 모드 전환">
+        <button class="theme-toggle" id="theme-toggle" type="button" aria-pressed="false" aria-label="다크 모드로 전환">
           <svg class="icon icon--sun" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
             <circle cx="12" cy="12" r="4"/>
             <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>
@@ -34,9 +35,10 @@
           <svg class="icon icon--moon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
             <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>
           </svg>
+          <span class="theme-toggle__label" aria-hidden="true"></span>
         </button>
 
-        <button class="icon-button nav__toggle" id="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-menu" aria-label="메뉴 열기">
+        <button class="nav__toggle" id="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-menu" aria-label="메뉴 열기">
           <span class="nav__toggle-bar" aria-hidden="true"></span>
           <span class="nav__toggle-bar" aria-hidden="true"></span>
           <span class="nav__toggle-bar" aria-hidden="true"></span>
@@ -46,14 +48,16 @@
   </header>
 
   <main>
-    <section class="hero" id="hero" tabindex="-1">
+    <section class="hero" id="home" tabindex="-1" aria-labelledby="home-title">
       <div class="container hero__inner">
-        <p class="hero__greeting">Hello, World!</p>
-        <h1 class="hero__title">웹을 처음부터 만드는<br>프론트엔드 개발자 <strong>정빈</strong>입니다</h1>
-        <p class="hero__lead">
-          프레임워크에 기대기 전에 브라우저가 실제로 어떻게 동작하는지 이해하고 싶어
-          HTML, CSS, JavaScript만으로 이 페이지를 직접 만들었습니다.
-        </p>
+        <p class="eyebrow hero__label">Mobile Engineer — Android · Flutter</p>
+
+        <h1 class="hero__title" id="home-title">
+          <span class="hero__name">정빈</span>
+          <span class="hero__typing"><span class="hero__typing-text">AI와 백엔드로
+역량을 확장하고 있습니다.</span><span class="hero__caret" aria-hidden="true"></span></span>
+        </h1>
+
         <div class="hero__actions">
           <a class="btn btn--primary" href="#projects">프로젝트 보기</a>
           <a class="btn btn--ghost" href="#contact">연락하기</a>
@@ -61,77 +65,105 @@
       </div>
     </section>
 
-    <section class="section" id="about" tabindex="-1">
+    <section class="section" id="about" tabindex="-1" aria-labelledby="about-title">
       <div class="container">
-        <h2 class="section__title reveal">About</h2>
-        <p class="section__lead reveal">무엇을 좋아하고 어떻게 배우는 사람인지 소개합니다.</p>
+        <p class="eyebrow section__index reveal">01 — About</p>
+        <h2 class="section__title reveal" id="about-title">화면 너머의 데이터까지 다룹니다</h2>
 
-        <div class="about__grid reveal">
-          <figure class="about__figure">
-            <img class="about__image" src="images/profile-placeholder.svg" alt="정빈의 프로필 사진" width="320" height="320">
-          </figure>
-
-          <div class="about__body">
-            <p>
-              동작 원리를 모른 채 라이브러리를 쓰는 게 불편해서, 기초부터 다시 쌓고 있습니다.
-              이 포트폴리오도 외부 라이브러리 없이 브라우저 기본 API만으로 만들었습니다.
-            </p>
-            <p>
-              화면을 그리는 것보다 <strong>사용자 이벤트가 상태를 바꾸고, 바뀐 상태가 화면을 다시 그리는</strong>
-              흐름을 눈으로 확인하는 데 집중했습니다. 상태를 한 곳에 모으고 각 기능이 자기 상태와 렌더를
-              직접 소유하도록 설계했습니다.
-            </p>
-            <p>
-              지금은 이 구조가 프레임워크에서 어떻게 추상화되는지 이어서 공부하고 있습니다.
+        <div class="about__grid">
+          <div class="about__body reveal">
+            <p class="about__lead">
+              Android Native로 개발을 시작해 Flutter로 플랫폼을 확장했고, 지금은 AI와 백엔드로
+              영역을 넓히는 중입니다. 화면 구현에서 멈추지 않고 데이터가 흐르는 구간까지 직접
+              다루는 데 관심이 있습니다.
             </p>
           </div>
+
+          <figure class="about__figure reveal">
+            <img class="about__image" src="images/profile.jpg" alt="정면을 바라보는 정빈의 프로필 사진" width="480" height="480">
+            <figcaption class="about__caption">정빈 / Jeong Been</figcaption>
+          </figure>
         </div>
+
+        <dl class="stats reveal">
+          <div class="stats__item">
+            <dt class="eyebrow">Native</dt>
+            <dd class="stats__value">Kotlin / Java · Android</dd>
+          </div>
+          <div class="stats__item">
+            <dt class="eyebrow">Cross-platform</dt>
+            <dd class="stats__value">Flutter / Dart</dd>
+          </div>
+          <div class="stats__item">
+            <dt class="eyebrow">CI/CD</dt>
+            <dd class="stats__value">Jenkins / GitHub Actions</dd>
+          </div>
+        </dl>
       </div>
     </section>
 
-    <section class="section section--muted" id="skills" tabindex="-1">
+    <section class="section" id="skills" tabindex="-1" aria-labelledby="skills-title">
       <div class="container">
-        <h2 class="section__title reveal">Skills</h2>
-        <p class="section__lead reveal">직접 써 보면서 익힌 기술들입니다.</p>
+        <p class="eyebrow section__index reveal">02 — Skills</p>
+        <h2 class="section__title reveal" id="skills-title">서비스 개발을 위한 기술 스택</h2>
 
         <div class="skills__grid">
           <article class="skill-card reveal">
-            <h3 class="skill-card__title">Markup &amp; Style</h3>
-            <ul class="skill-list">
-              <li class="skill-tag">HTML5 시맨틱 마크업</li>
-              <li class="skill-tag">CSS 변수와 테마</li>
-              <li class="skill-tag">Flexbox / Grid</li>
-              <li class="skill-tag">반응형 · 모바일 퍼스트</li>
+            <h3 class="skill-card__title">Mobile</h3>
+            <ul class="tag-list">
+              <li class="tag">Android</li>
+              <li class="tag">Kotlin</li>
+              <li class="tag">Java</li>
+              <li class="tag">Flutter</li>
+              <li class="tag">Dart</li>
             </ul>
           </article>
 
           <article class="skill-card reveal">
-            <h3 class="skill-card__title">JavaScript</h3>
-            <ul class="skill-list">
-              <li class="skill-tag">DOM 조작과 이벤트</li>
-              <li class="skill-tag">ES Modules</li>
-              <li class="skill-tag">fetch · async/await</li>
-              <li class="skill-tag">상태 기반 렌더링</li>
+            <h3 class="skill-card__title">Language</h3>
+            <ul class="tag-list">
+              <li class="tag">Kotlin</li>
+              <li class="tag">Java</li>
+              <li class="tag">Dart</li>
+              <li class="tag">Python</li>
             </ul>
           </article>
 
           <article class="skill-card reveal">
-            <h3 class="skill-card__title">Tooling &amp; Interest</h3>
-            <ul class="skill-list">
-              <li class="skill-tag">Git · GitHub Flow</li>
-              <li class="skill-tag">GitHub Pages</li>
-              <li class="skill-tag">웹 접근성</li>
-              <li class="skill-tag">React (학습 중)</li>
+            <h3 class="skill-card__title">Collaboration</h3>
+            <ul class="tag-list">
+              <li class="tag">Git</li>
+              <li class="tag">GitHub</li>
+              <li class="tag">Code Review</li>
+            </ul>
+          </article>
+
+          <article class="skill-card reveal">
+            <h3 class="skill-card__title">CI/CD</h3>
+            <ul class="tag-list">
+              <li class="tag">Jenkins</li>
+              <li class="tag">GitHub Actions</li>
+              <li class="tag">Fastlane</li>
             </ul>
           </article>
         </div>
       </div>
     </section>
 
-    <section class="section" id="projects" tabindex="-1">
+    <section class="section" id="projects" tabindex="-1" aria-labelledby="projects-title">
       <div class="container">
-        <h2 class="section__title reveal">Projects</h2>
-        <p class="section__lead reveal">GitHub에 공개한 저장소를 불러와 보여줍니다.</p>
+        <p class="eyebrow section__index reveal">03 — Projects</p>
+        <h2 class="section__title reveal" id="projects-title">주요 프로젝트 목록</h2>
+
+        <p class="projects__accounts reveal">
+          <span class="eyebrow">GitHub 바로가기</span>
+          <a class="account-link" href="https://github.com/b0e2" target="_blank" rel="noopener noreferrer">
+            @b0e2<span class="account-link__mark" aria-hidden="true">↗</span>
+          </a>
+          <a class="account-link" href="https://github.com/B1ns" target="_blank" rel="noopener noreferrer">
+            @B1ns<span class="account-link__mark" aria-hidden="true">↗</span>
+          </a>
+        </p>
 
         <div class="projects__filters" id="project-filters" hidden></div>
 
@@ -141,31 +173,31 @@
       </div>
     </section>
 
-    <section class="section section--muted" id="contact" tabindex="-1">
-      <div class="container container--narrow">
-        <h2 class="section__title reveal">Contact</h2>
-        <p class="section__lead reveal">궁금한 점이 있다면 편하게 남겨 주세요.</p>
+    <section class="section" id="contact" tabindex="-1" aria-labelledby="contact-title">
+      <div class="container">
+        <p class="eyebrow section__index reveal">04 — Contact</p>
+        <h2 class="section__title reveal" id="contact-title">이야기 나누기</h2>
 
         <form class="form reveal" id="contact-form" novalidate>
           <div class="form__field">
-            <label class="form__label" for="contact-name">이름</label>
-            <input class="form__input" id="contact-name" name="name" type="text" autocomplete="name" placeholder="홍길동">
-            <p class="form__error" id="contact-name-error"></p>
+            <label class="form__label" for="contact-name">이름 <span class="form__required" aria-hidden="true">*</span></label>
+            <input class="form__input" id="contact-name" name="name" type="text" autocomplete="name" placeholder="정빈" aria-describedby="contact-name-error">
+            <p class="form__error" id="contact-name-error" role="alert"></p>
           </div>
 
           <div class="form__field">
-            <label class="form__label" for="contact-email">이메일</label>
-            <input class="form__input" id="contact-email" name="email" type="email" autocomplete="email" placeholder="you@example.com">
-            <p class="form__error" id="contact-email-error"></p>
+            <label class="form__label" for="contact-email">이메일 <span class="form__required" aria-hidden="true">*</span></label>
+            <input class="form__input" id="contact-email" name="email" type="email" autocomplete="email" placeholder="b0e2@example.com" aria-describedby="contact-email-error">
+            <p class="form__error" id="contact-email-error" role="alert"></p>
           </div>
 
           <div class="form__field">
-            <label class="form__label" for="contact-message">메시지</label>
-            <textarea class="form__input form__input--area" id="contact-message" name="message" rows="5" placeholder="어떤 이야기든 좋습니다."></textarea>
-            <p class="form__error" id="contact-message-error"></p>
+            <label class="form__label" for="contact-message">메시지 <span class="form__required" aria-hidden="true">*</span></label>
+            <textarea class="form__input form__input--area" id="contact-message" name="message" rows="6" placeholder="10자 이상 적어주세요." aria-describedby="contact-message-error"></textarea>
+            <p class="form__error" id="contact-message-error" role="alert"></p>
           </div>
 
-          <button class="btn btn--primary btn--block" type="submit">보내기</button>
+          <button class="btn btn--primary" type="submit">보내기</button>
           <p class="form__success" id="contact-success" role="status" aria-live="polite"></p>
         </form>
       </div>
@@ -174,25 +206,17 @@
 
   <footer class="site-footer">
     <div class="container site-footer__inner">
-      <p class="site-footer__copy">&copy; 2026 Jeongbeen. All rights reserved.</p>
+      <p class="site-footer__copy">Copyright &copy; 2026 정빈(Jeong Been). All rights reserved.</p>
 
       <ul class="site-footer__links">
         <li>
-          <a class="site-footer__link" href="https://github.com/b0e2" target="_blank" rel="noopener noreferrer">
-            <svg class="icon icon--solid" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.9 1.53 2.34 1.09 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02a9.5 9.5 0 0 1 5 0c1.91-1.29 2.75-1.02 2.75-1.02.55 1.37.2 2.39.1 2.64.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.74c0 .27.18.58.69.48A10 10 0 0 0 12 2z"/>
-            </svg>
-            GitHub
-          </a>
+          <a class="site-footer__link" href="https://github.com/b0e2" target="_blank" rel="noopener noreferrer">@b0e2</a>
         </li>
         <li>
-          <a class="site-footer__link" href="mailto:beenjeong02@gmail.com">
-            <svg class="icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <rect x="3" y="5" width="18" height="14" rx="2"/>
-              <path d="m3 7 9 6 9-6"/>
-            </svg>
-            Email
-          </a>
+          <a class="site-footer__link" href="https://github.com/B1ns" target="_blank" rel="noopener noreferrer">@B1ns</a>
+        </li>
+        <li>
+          <a class="site-footer__link" href="mailto:beenjeong02@gmail.com">Email</a>
         </li>
       </ul>
     </div>

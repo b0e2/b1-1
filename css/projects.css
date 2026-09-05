@@ -1,0 +1,126 @@
+/*
+ * Projects 섹션의 표현. features/projects.js와 짝을 이룬다.
+ * 카드, 언어 필터, 로딩·에러·빈 상태가 여기 모인다.
+ * 스켈레톤과 상태 데모 컨트롤은 R3에서 이 파일에 이어 붙인다.
+ */
+
+/* ── 언어 필터 ──────────────────────────────────── */
+
+.filter-btn {
+  min-height: 2.25rem;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background-color: var(--color-surface);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+  transition: background-color var(--transition-fast), border-color var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.filter-btn:hover {
+  border-color: var(--color-text);
+  color: var(--color-text);
+}
+
+/* 선택된 칩은 accent로 채워 지금 어떤 필터가 걸려 있는지 한눈에 보이게 한다. */
+.filter-btn.is-active {
+  border-color: transparent;
+  background-color: var(--color-accent);
+  color: var(--color-ink);
+}
+
+/* ── 카드 ───────────────────────────────────────── */
+
+.project-card {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+}
+
+.project-card__title {
+  font-size: var(--text-md);
+}
+
+.project-card__title a {
+  transition: color var(--transition-fast);
+}
+
+.project-card__title a:hover {
+  color: color-mix(in srgb, var(--color-accent) 70%, var(--color-text));
+}
+
+.project-card__description {
+  font-size: var(--text-base);
+  color: var(--color-muted);
+}
+
+.project-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+
+/* 언어 앞의 점은 목록에서 언어를 빠르게 훑기 위한 표시다. */
+.project-card__language {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.project-card__language::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background-color: var(--color-accent);
+}
+
+.project-card__stars {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+/* ── 상태 화면 ──────────────────────────────────── */
+
+/*
+ * 로딩·에러·빈 상태가 공유하는 자리.
+ * 카드가 보일 때는 이 영역이 비고, 카드가 없을 때만 자리를 대신한다.
+ */
+.state {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-3);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-card);
+  color: var(--color-muted);
+  text-align: center;
+}
+
+.spinner {
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid var(--color-border);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: spinner-rotate 700ms linear infinite;
+}
+
+@keyframes spinner-rotate {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 2s;
+  }
+}
