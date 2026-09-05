@@ -13,7 +13,7 @@
 | 마크업 | HTML5 시맨틱 태그 |
 | 스타일 | CSS 변수, Flexbox, Grid, 모바일 퍼스트 반응형 |
 | 스크립트 | ES Modules, DOM API, Fetch API |
-| 폰트 | Google Fonts (Noto Sans KR, DM Sans) |
+| 폰트 | Google Fonts (Space Grotesk, Noto Sans KR, IBM Plex Mono) |
 | 배포 | GitHub Pages |
 
 React, Vue, jQuery, Bootstrap, Tailwind 등 외부 UI/JS 라이브러리는 사용하지 않았습니다.
@@ -27,17 +27,32 @@ React, Vue, jQuery, Bootstrap, Tailwind 등 외부 UI/JS 라이브러리는 사�
 │   ├── style.css        # 진입점. 아래 파일들을 순서대로 import
 │   ├── tokens.css       # 색상·타이포·간격·그림자 토큰 (라이트/다크)
 │   ├── base.css         # reset, 요소 기본값, 접근성 보조
-│   ├── layout.css       # 헤더·섹션·그리드 골격, 반응형
-│   └── components.css   # 버튼·카드·폼·상태 UI
+│   ├── layout.css       # 컨테이너·헤더·섹션·그리드 골격, 반응형
+│   ├── components.css   # 여러 섹션이 함께 쓰는 버튼·칩·카드·헤더·top 버튼
+│   ├── sections.css     # Hero·About·Skills·Footer의 표현
+│   ├── projects.css     # 프로젝트 카드·언어 필터·상태 화면
+│   └── contact.css      # 문의 폼 입력·오류·성공 표시
 ├── js/
 │   ├── main.js          # 조립 지점. 기능 초기화와 렌더 구독만 한다
 │   ├── store.js         # 전역 상태와 구독
 │   ├── dom.js           # DOM 헬퍼
+│   ├── github-api.js    # 저장소 요청과 응답 정규화
 │   └── features/        # 기능별 모듈 (상태·이벤트·렌더를 함께 소유)
-│       └── theme.js     # 다크 모드
+│       ├── theme.js         # 다크 모드
+│       ├── navigation.js    # 메뉴·앵커·스크롤 임계값·맨 위로
+│       ├── scroll-reveal.js # 등장 효과
+│       ├── projects.js      # 프로젝트 목록과 상태별 화면
+│       └── contact-form.js  # 문의 폼 검증
 ├── images/              # 사이트에 쓰이는 이미지
 └── .github/screenshots/ # README 전용 캡처
 ```
+
+CSS는 JavaScript를 기능 단위로 나눈 것과 같은 축으로 나눕니다.
+`projects.css`는 `features/projects.js`와, `contact.css`는 `features/contact-form.js`와 짝을 이룹니다.
+여러 섹션이 재사용하는 표현만 `components.css`에 남기고, 정적 섹션의 표현은 `sections.css`가 맡습니다.
+
+`@import`는 `style.css` 최상단에 평평하게 모읍니다.
+불러온 파일 안에서 다시 `@import` 하면 브라우저가 파일을 하나씩 순서대로 받아야 해서 첫 렌더가 늦어집니다.
 
 ## 실행 방법
 
@@ -59,6 +74,7 @@ ES Modules는 `file://`에서 CORS 정책 때문에 로드되지 않습니다.
 | 헤더 배경 전환 | `scrollY >= 60px` |
 | 맨 위로 버튼 노출 | `scrollY >= 300px` |
 | 스크롤 등장 효과 | `IntersectionObserver` threshold `0.2` |
+| 브레이크포인트 | `768px`(모바일↔태블릿), `1024px`(데스크톱), `1180px`(Hero 대형 타이포) |
 
 ## 설계 노트
 
