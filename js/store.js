@@ -41,6 +41,12 @@ let state = {
      */
     usedCache: false,
     cachedAt: null,
+
+    /*
+     * 유효 기간 안의 캐시인지, 요청이 실패해 어쩔 수 없이 꺼내 쓴 캐시인지.
+     * 전자는 조용히 알리고 후자에만 최신이 아닐 수 있다는 경고를 붙인다.
+     */
+    cacheIsStale: false,
   },
 
   form: {

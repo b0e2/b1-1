@@ -124,14 +124,22 @@ export const fetchRepositories = async (username) => {
  * 세 번째 갈래가 이 변경의 핵심이다. 한도를 다 쓴 방문자에게 오류 화면만 보여 주는 것보다,
  * 조금 지난 목록이라도 보여 주고 최신이 아닐 수 있다고 알리는 편이 낫다.
  *
- * forceRefresh는 "다시 시도"용이다. 캐시를 읽지 않고 반드시 요청을 보내되,
+ * 돌려주는 값의 isStale이 두 캐시 경로를 갈라 준다. 유효 기간 안의 캐시(false)와
+ * 요청이 실패해 어쩔 수 없이 꺼내 쓴 캐시(true)는 사용자에게 알릴 내용이 다르다.
+ *
+ * forceRefresh는 "새로고침"용이다. 캐시를 읽지 않고 반드시 요청을 보내되,
  * 그 요청마저 실패하면 남아 있는 캐시로 되돌아간다.
  */
 export const loadRepositories = async (username, { forceRefresh = false } = {}) => {
   const cached = forceRefresh ? null : readCache(username);
 
   if (cached && Date.now() - cached.savedAt < CACHE_TTL) {
-    return { repositories: cached.repositories, fromCache: true, savedAt: cached.savedAt };
+    return {
+      repositories: cached.repositories,
+      fromCache: true,
+      savedAt: cached.savedAt,
+      isStale: false,
+    };
   }
 
   try {
@@ -139,14 +147,19 @@ export const loadRepositories = async (username, { forceRefresh = false } = {}) 
 
     writeStoredCache(username, JSON.stringify({ savedAt: Date.now(), repositories }));
 
-    return { repositories, fromCache: false, savedAt: null };
+    return { repositories, fromCache: false, savedAt: null, isStale: false };
   } catch (error) {
     // forceRefresh였다면 위에서 읽지 않았으므로 여기서 한 번 더 확인한다.
     const fallback = cached ?? readCache(username);
 
     if (!fallback) throw error;
 
-    return { repositories: fallback.repositories, fromCache: true, savedAt: fallback.savedAt };
+    return {
+      repositories: fallback.repositories,
+      fromCache: true,
+      savedAt: fallback.savedAt,
+      isStale: true,
+    };
   }
 };
 
