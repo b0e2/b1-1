@@ -165,9 +165,29 @@
           </a>
         </p>
 
-        <div class="projects__filters" id="project-filters" hidden></div>
+        <div class="projects__toolbar">
+          <div class="projects__filters" id="project-filters" hidden></div>
 
-        <div class="projects__status" id="projects-status" role="status" aria-live="polite"></div>
+          <!--
+            화면 확인용 컨트롤. 네 상태를 눈으로 확인할 수 있게 기본으로 노출한다.
+            선택값은 저장하지 않으므로 새로고침하면 실데이터로 돌아온다.
+          -->
+          <div class="state-demo">
+            <label class="state-demo__label" for="state-demo">STATE DEMO</label>
+            <select class="state-demo__select" id="state-demo" aria-describedby="state-demo-hint">
+              <option value="live">실데이터</option>
+              <option value="loading">로딩</option>
+              <option value="error">에러</option>
+              <option value="empty">빈 상태</option>
+            </select>
+            <p class="state-demo__hint" id="state-demo-hint">화면 확인용이며 요청을 보내지 않습니다.</p>
+          </div>
+        </div>
+
+        <p class="projects__demo-notice" id="projects-demo-notice" hidden></p>
+
+        <!-- role과 aria-live는 상태에 따라 features/projects.js가 갈아 끼운다. -->
+        <div class="projects__status" id="projects-status"></div>
 
         <div class="projects__grid" id="projects-grid"></div>
       </div>

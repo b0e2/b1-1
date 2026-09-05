@@ -124,11 +124,31 @@
   margin-bottom: var(--space-4);
 }
 
+/*
+ * 필터 칩과 상태 데모 컨트롤이 한 줄을 나눠 쓴다. 좁은 화면에서는 칩이 먼저
+ * 오고 컨트롤이 아래로 내려가도록 wrap에 맡긴다.
+ */
+.projects__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
 .projects__filters {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-1);
-  margin-bottom: var(--space-4);
+}
+
+/*
+ * hidden은 UA 스타일의 display: none으로 동작하는데, 위의 display: flex가
+ * 그것을 이긴다. 칩이 없을 때 빈 칸이 남지 않도록 명시적으로 되돌린다.
+ */
+.projects__filters[hidden] {
+  display: none;
 }
 
 /* ── Footer ─────────────────────────────────────── */
