@@ -78,19 +78,28 @@
   padding-block: var(--space-6) var(--space-5);
 }
 
+/*
+ * Hero는 왼쪽에 라벨·제목·CTA, 오른쪽에 프로필 사진이 서는 2열이다.
+ * 좁은 화면에서는 한 열로 쌓고 사진이 폭을 다 먹지 않도록 시작점에 붙인다.
+ *
+ * 사진 지름은 여기서 브레이크포인트마다 정하고 sections.css가 그 값을 읽어 쓴다.
+ * 좁을수록 작게 두는 이유는, 첫 화면에서 사진이 커지면 CTA가 접히는 선 아래로 밀리기 때문이다.
+ */
 .hero__inner {
   position: relative;
   z-index: 1;
+  --hero-photo: 9.5rem;
+  display: grid;
+  gap: var(--space-4);
+}
+
+.hero__figure {
+  justify-self: start;
 }
 
 /* ── About ──────────────────────────────────────── */
 
-.about__grid {
-  display: grid;
-  gap: var(--space-5);
-}
-
-/* About 본문과 사진이 위쪽 2열을 이루고, 지표는 그 아래에서 전체 폭을 쓴다. */
+/* 사진이 Hero로 옮겨 가서 About은 소개문과 지표가 세로로 이어지는 한 열이다. */
 .stats {
   display: grid;
   gap: var(--space-3);
@@ -186,16 +195,21 @@
     padding-block: var(--space-7) var(--space-6);
   }
 
-  .about__grid {
-    grid-template-columns: 1.55fr 0.85fr;
+  /*
+   * 사진 칸은 auto라 자기 지름만 차지하고, 남는 폭은 전부 텍스트가 가져간다.
+   * fr 비율로 나누면 화면이 좁아질 때 제목이 먼저 좁아져 타이핑 문구가 예약한
+   * 두 줄을 넘긴다. minmax(0, 1fr)은 긴 단어가 칸을 밀어내지 못하게 막는다.
+   */
+  .hero__inner {
+    --hero-photo: 11rem;
+    grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
-    gap: var(--space-6);
+    gap: var(--space-5);
   }
 
   /*
-   * 지표는 About 본문 칸이 아니라 섹션 전체 폭을 쓴다.
-   * 2열 구도의 좁은 칸에 넣으면 "Jenkins / GitHub Actions"처럼 긴 항목이
-   * 매번 줄바꿈되어 세 항목의 높이가 어긋난다.
+   * 지표는 섹션 전체 폭을 쓴다. 좁은 칸에 넣으면
+   * "Jenkins / GitHub Actions"처럼 긴 항목이 매번 줄바꿈되어 높이가 어긋난다.
    */
   .stats {
     grid-template-columns: repeat(3, 1fr);
@@ -216,7 +230,20 @@
 /* ── 데스크톱 ───────────────────────────────────── */
 
 @media (min-width: 1024px) {
+  .hero__inner {
+    --hero-photo: 13.75rem;
+    gap: var(--space-6);
+  }
+
   .skills__grid {
     grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* ── 대형 화면 ───────────────────────────────────── */
+
+@media (min-width: 1180px) {
+  .hero__inner {
+    --hero-photo: 15rem;
   }
 }

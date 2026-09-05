@@ -50,18 +50,26 @@
   <main>
     <section class="hero" id="home" tabindex="-1" aria-labelledby="home-title">
       <div class="container hero__inner">
-        <p class="eyebrow hero__label">Mobile Engineer — Android · Flutter</p>
+        <div class="hero__content">
+          <p class="eyebrow hero__label">Mobile Engineer — Android · Flutter</p>
 
-        <h1 class="hero__title" id="home-title">
-          <span class="hero__name">정빈</span>
-          <span class="hero__typing"><span class="hero__typing-text" aria-hidden="true">AI와 백엔드로
+          <h1 class="hero__title" id="home-title">
+            <span class="hero__name">정빈</span>
+            <span class="hero__typing"><span class="hero__typing-text" aria-hidden="true">AI와 백엔드로
 역량을 확장하고 있습니다.</span><span class="hero__caret" aria-hidden="true"></span><span class="sr-only">AI와 백엔드로 역량을 확장하고 있습니다.</span></span>
-        </h1>
+          </h1>
 
-        <div class="hero__actions">
-          <a class="btn btn--primary" href="#projects">프로젝트 보기</a>
-          <a class="btn btn--ghost" href="#contact">연락하기</a>
+          <div class="hero__actions">
+            <a class="btn btn--primary" href="#projects">프로젝트 보기</a>
+            <a class="btn btn--ghost" href="#contact">연락하기</a>
+          </div>
         </div>
+
+        <!-- 프로필 사진은 확정 디자인대로 Hero 오른쪽에 둔다. 근거는 README에 적어 두었다. -->
+        <figure class="hero__figure">
+          <img class="hero__image" src="images/profile.jpg" alt="정면을 바라보는 정빈의 프로필 사진" width="480" height="480">
+          <figcaption class="hero__caption">정빈 / Jeong Been</figcaption>
+        </figure>
       </div>
     </section>
 
@@ -70,20 +78,11 @@
         <p class="eyebrow section__index reveal">01 — About</p>
         <h2 class="section__title reveal" id="about-title">화면 너머의 데이터까지 다룹니다</h2>
 
-        <div class="about__grid">
-          <div class="about__body reveal">
-            <p class="about__lead">
-              Android Native로 개발을 시작해 Flutter로 플랫폼을 확장했고, 지금은 AI와 백엔드로
-              영역을 넓히는 중입니다. 화면 구현에서 멈추지 않고 데이터가 흐르는 구간까지 직접
-              다루는 데 관심이 있습니다.
-            </p>
-          </div>
-
-          <figure class="about__figure reveal">
-            <img class="about__image" src="images/profile.jpg" alt="정면을 바라보는 정빈의 프로필 사진" width="480" height="480">
-            <figcaption class="about__caption">정빈 / Jeong Been</figcaption>
-          </figure>
-        </div>
+        <p class="about__lead reveal">
+          Android Native로 개발을 시작해 Flutter로 플랫폼을 확장했고, 지금은 AI와 백엔드로
+          영역을 넓히는 중입니다. 화면 구현에서 멈추지 않고 데이터가 흐르는 구간까지 직접
+          다루는 데 관심이 있습니다.
+        </p>
 
         <dl class="stats reveal">
           <div class="stats__item">
