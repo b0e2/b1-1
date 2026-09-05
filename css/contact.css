@@ -1,7 +1,6 @@
 /*
  * Contact 섹션의 표현. features/contact-form.js와 짝을 이룬다.
- * 입력 컨트롤, 오류 표시, 성공 안내가 여기 모인다.
- * 글자 수 안내와 성공 패널 교체는 R4에서 이 파일에 이어 붙인다.
+ * 입력 컨트롤, 오류 표시, 글자 수 안내, 제출 요약, 성공 패널이 여기 모인다.
  */
 
 /*
@@ -12,6 +11,14 @@
   display: grid;
   gap: var(--space-3);
   max-width: 34rem;
+}
+
+/*
+ * hidden은 UA 스타일의 display: none으로 동작하는데 위의 display: grid가 그것을 이긴다.
+ * 성공 패널로 넘어갔을 때 폼이 그대로 남지 않도록 명시적으로 되돌린다.
+ */
+.form[hidden] {
+  display: none;
 }
 
 /* 제출 버튼은 grid 칸을 꽉 채우지 않고 내용 폭만 차지한다. */
@@ -73,10 +80,90 @@
   color: var(--color-danger-fg);
 }
 
-.form__success:not(:empty) {
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid color-mix(in srgb, var(--color-accent) 55%, var(--color-border));
+/*
+ * 글자 수 안내는 오류가 아니라 진행 상황이다. 오류 문구와 색을 나눠 두어야
+ * 아직 열 자를 못 채운 것과 규칙을 어긴 것이 구분된다.
+ */
+.form__hint {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}
+
+/*
+ * 제출을 눌렀을 때만 채워지는 요약. 비어 있을 때는 자리도 차지하지 않는다.
+ * 필드별 안내와 달리 이 문단만 role="alert"를 갖는다.
+ */
+.form__alert:empty {
+  display: none;
+}
+
+.form__alert {
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-danger-border);
   border-radius: var(--radius-input);
-  background-color: color-mix(in srgb, var(--color-accent) 14%, transparent);
+  background-color: var(--color-danger-bg);
+  font-size: var(--text-sm);
+  color: var(--color-danger-fg);
+}
+
+/* ── 전송 성공 패널 ─────────────────────────────── */
+
+/*
+ * 폼과 같은 자리를 이어받으므로 폭도 같이 맞춘다.
+ * 폼이 사라지고 이 패널이 나타나는 것이 곧 "보냈다"는 결과 표시다.
+ */
+.form-success {
+  display: grid;
+  justify-items: start;
+  gap: var(--space-3);
+  max-width: 34rem;
+  padding: var(--space-4);
+  border: 1px solid color-mix(in srgb, var(--color-accent) 55%, var(--color-border));
+  border-radius: var(--radius-card);
+  background-color: color-mix(in srgb, var(--color-accent) 12%, transparent);
+}
+
+.form-success[hidden] {
+  display: none;
+}
+
+/* 포커스를 받아 안내를 읽히는 용도라 테두리까지 그릴 필요는 없다. */
+.form-success:focus {
+  outline: none;
+}
+
+.form-success__badge {
+  color: color-mix(in srgb, var(--color-accent) 60%, var(--color-text));
+}
+
+.form-success__title {
+  font-size: var(--text-md);
+  font-weight: 500;
+}
+
+.form-success__meta {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
   font-size: var(--text-base);
+}
+
+/* 항목 이름과 값을 한 줄에 두되, 이름 칸 폭을 고정해 두 줄이 나란히 선다. */
+.form-success__row {
+  display: grid;
+  grid-template-columns: 4rem 1fr;
+  gap: var(--space-2);
+}
+
+.form-success__row dt {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-label);
+  color: var(--color-muted);
+  align-self: center;
+}
+
+.form-success__row dd {
+  overflow-wrap: anywhere;
 }
