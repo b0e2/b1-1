@@ -15,8 +15,19 @@ const DESKTOP_QUERY = '(min-width: 768px)';
 /** 헤더 배경이 바뀌는 스크롤 위치. README에 같은 값을 기록해 둔다. */
 const HEADER_THRESHOLD = 60;
 
-/** 맨 위로 버튼이 나타나는 스크롤 위치. */
-const TOP_BUTTON_THRESHOLD = 300;
+/** 맨 위로 버튼이 나타나는 스크롤 위치. 이 값을 넘어야 보인다. README에 같은 값을 기록해 둔다. */
+const TOP_BUTTON_THRESHOLD = 320;
+
+/**
+ * 모션을 줄이도록 설정한 사용자에게는 부드러운 이동 대신 즉시 이동시킨다.
+ * CSS의 scroll-behavior는 스크립트가 지정한 behavior에 덮이므로, 이동을 만드는
+ * 쪽에서 직접 확인해야 한다. 같은 확인이 typing에도 필요하지만 대응 방식이
+ * 서로 달라(여기는 이동 방식, 저기는 실행 여부) 각 기능이 따로 판단한다.
+ */
+const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
+
+const resolveScrollBehavior = () =>
+  window.matchMedia(REDUCED_MOTION_QUERY).matches ? 'auto' : 'smooth';
 
 let header = null;
 let menu = null;
@@ -53,12 +64,25 @@ const handleAnchorClick = (event) => {
   event.preventDefault();
   closeMenu();
 
-  target.scrollIntoView({ behavior: 'smooth' });
+  target.scrollIntoView({ behavior: resolveScrollBehavior() });
   target.focus({ preventScroll: true });
 };
 
 const handleTopButtonClick = () => {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  window.scrollTo({ top: 0, behavior: resolveScrollBehavior() });
+};
+
+/**
+ * 열린 메뉴는 Escape로도 닫는다. 메뉴를 연 뒤 링크를 고르지 않고 빠져나오려는
+ * 키보드 사용자에게 햄버거로 되돌아가는 것 말고 다른 출구를 준다.
+ * 닫은 뒤 포커스를 햄버거로 돌려 주지 않으면 사라진 요소에 포커스가 남는다.
+ */
+const handleKeydown = (event) => {
+  if (event.key !== 'Escape') return;
+  if (!getState().navigation.menuOpen) return;
+
+  closeMenu();
+  menuToggle.focus();
 };
 
 /**
@@ -69,7 +93,7 @@ const handleTopButtonClick = () => {
 const syncScrollState = () => {
   const offset = window.scrollY;
   const isScrolled = offset >= HEADER_THRESHOLD;
-  const showTopButton = offset >= TOP_BUTTON_THRESHOLD;
+  const showTopButton = offset > TOP_BUTTON_THRESHOLD;
   const { navigation } = getState();
 
   if (navigation.isScrolled === isScrolled && navigation.showTopButton === showTopButton) return;
@@ -109,6 +133,7 @@ export const initNavigation = () => {
     anchor.addEventListener('click', handleAnchorClick);
   });
 
+  document.addEventListener('keydown', handleKeydown);
   window.matchMedia(DESKTOP_QUERY).addEventListener('change', handleDesktopChange);
   window.addEventListener('scroll', handleScroll, { passive: true });
 
