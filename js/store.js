@@ -38,8 +38,24 @@ let state = {
 
   form: {
     values: { name: '', email: '', message: '' },
+
+    /*
+     * blur로 한 번 떠난 필드만 true가 된다. 첫 입력 도중에 오류를 들이밀지
+     * 않으려면 "아직 다 안 썼는지"와 "틀렸는지"를 구분해야 한다.
+     */
+    touched: { name: false, email: false, message: false },
+
+    // 지금 화면에 보이는 오류. touched가 아닌 필드는 값이 비어 있어도 빈 문자열이다.
     errors: { name: '', email: '', message: '' },
-    submitted: false,
+
+    /*
+     * 제출을 눌렀을 때 한 번만 알리는 요약 문구.
+     * 필드별 오류는 aria-describedby가 맡으므로 여기에는 흘리지 않는다.
+     */
+    submitAlert: '',
+
+    // true면 입력 폼 자리를 성공 패널이 대신한다.
+    sent: false,
   },
 };
 
