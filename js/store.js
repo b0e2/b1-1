@@ -34,6 +34,13 @@ let state = {
      */
     // 'live' | 'loading' | 'error' | 'empty'
     demo: 'live',
+
+    /*
+     * 지금 화면의 목록이 브라우저에 저장해 둔 응답에서 왔는지와, 그 응답을 받아 둔 시각.
+     * 안내 문구를 고르는 데만 쓴다. 상태 이름은 여전히 loading·ready·error·empty 넷이다.
+     */
+    usedCache: false,
+    cachedAt: null,
   },
 
   form: {

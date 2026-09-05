@@ -1,9 +1,14 @@
 /**
  * GitHub API 계층.
  *
- * 데이터를 가져오고 화면이 쓰기 좋은 모양으로 다듬는 일만 한다.
- * 전역 상태를 읽지도 바꾸지도 않으므로, 이 파일만 따로 떼어 테스트하거나
- * 다른 화면에서 재사용할 수 있다. 상태를 언제 어떻게 바꿀지는 부르는 쪽이 정한다.
+ * 요청, 오류, 정규화, 그리고 캐시까지 "데이터를 얻는 방법"을 맡는다.
+ * 전역 상태를 읽지도 바꾸지도 않는다. 상태를 언제 어떻게 바꿀지는 부르는 쪽이 정한다.
+ *
+ * 캐시가 여기 있는 이유는 그것이 화면의 상태가 아니라 데이터를 얻는 경로이기 때문이다.
+ * 부르는 쪽 입장에서는 "저장소 목록을 달라"는 요청 하나이고, 그 답이 네트워크에서 왔는지
+ * 브라우저 저장소에서 왔는지는 같은 질문에 대한 두 경로일 뿐이다. features/projects.js가
+ * 캐시를 직접 다루면 상태를 옮기는 일과 데이터를 구하는 일이 한 파일에서 섞인다.
+ * 저장하는 값도 화면용으로 가공하기 전의 원본 응답이라, 이 계층 밖으로 새어 나가지 않는다.
  *
  * 화면에 맞춘 판단은 여기 두지 않는다. 날짜를 어떤 형식으로 보여 줄지,
  * 언어 칩을 어떤 순서로 세울지, 배지에 무슨 글자를 쓸지는 features/projects.js가 정한다.
@@ -13,6 +18,16 @@ const API_ORIGIN = 'https://api.github.com';
 const REQUEST_HEADERS = { Accept: 'application/vnd.github+json' };
 
 const FALLBACK_DESCRIPTION = '아직 설명이 없는 저장소입니다.';
+
+/**
+ * 캐시를 믿는 시간. 무인증 GitHub API는 시간당 60회뿐이라 새로고침 몇 번이면 바닥난다.
+ * 10분은 반복 방문의 요청을 거의 없애면서도, 저장소를 갱신한 뒤 화면에 반영되기까지
+ * 오래 기다리지 않는 절충값이다. README에 같은 값을 기록해 둔다.
+ */
+const CACHE_TTL = 10 * 60 * 1000;
+
+/** 계정이 바뀌면 옛 계정의 목록을 읽지 않도록 키에 사용자명을 넣는다. */
+const cacheKey = (username) => `portfolio-repos:${username}`;
 
 /**
  * 언어 판정이 비어 있는 저장소가 모이는 자리.
@@ -32,6 +47,54 @@ const LANGUAGE_OVERRIDES = {
   'ai-debate-front': 'Dart',
 };
 
+/*
+ * 저장소 접근은 세 군데에서 따로 막힐 수 있다. 브라우저 설정이 localStorage를
+ * 아예 차단하거나, 저장 용량이 넘치거나, 남아 있던 값이 깨져 있거나.
+ * 셋을 각각 감싸 두면 어느 쪽이 실패해도 캐시만 건너뛰고 요청 흐름은 그대로 돈다.
+ */
+const readStoredCache = (username) => {
+  try {
+    return localStorage.getItem(cacheKey(username));
+  } catch {
+    return null;
+  }
+};
+
+const writeStoredCache = (username, value) => {
+  try {
+    localStorage.setItem(cacheKey(username), value);
+  } catch {
+    // 캐시는 최적화라서, 저장에 실패해도 이번에 받아 온 목록은 그대로 쓴다.
+  }
+};
+
+/**
+ * 저장된 값은 사용자가 직접 고칠 수 있는 자리에 있으므로 그대로 믿지 않는다.
+ * 화면을 그리는 데 실제로 필요한 필드만 확인해, 깨진 값이 렌더까지 흘러가지 않게 한다.
+ */
+const isUsableRepository = (repository) =>
+  repository !== null
+  && typeof repository === 'object'
+  && typeof repository.name === 'string'
+  && !Number.isNaN(Date.parse(repository.pushed_at));
+
+const parseCache = (raw) => {
+  if (!raw) return null;
+
+  try {
+    const { savedAt, repositories } = JSON.parse(raw);
+
+    if (typeof savedAt !== 'number' || !Array.isArray(repositories)) return null;
+    if (!repositories.every(isUsableRepository)) return null;
+
+    return { savedAt, repositories };
+  } catch {
+    return null;
+  }
+};
+
+const readCache = (username) => parseCache(readStoredCache(username));
+
 /**
  * 저장소 목록을 가져온다.
  * 실패하면 응답 코드를 담은 Error를 던져서, 부르는 쪽이 상황별로 안내를 고를 수 있게 한다.
@@ -48,6 +111,43 @@ export const fetchRepositories = async (username) => {
   }
 
   return response.json();
+};
+
+/**
+ * 저장소 목록을 얻는 하나의 입구. 부르는 쪽은 데이터가 어디서 왔는지 신경 쓰지 않는다.
+ *
+ *   유효한 캐시가 있으면      → 요청하지 않고 그대로 돌려준다
+ *   없거나 만료됐으면         → 요청하고, 성공하면 캐시를 갱신한다
+ *   요청이 실패했는데 캐시가 있으면 → 만료됐더라도 그것으로 대신한다
+ *   요청도 실패하고 캐시도 없으면  → 예외를 그대로 올려보낸다
+ *
+ * 세 번째 갈래가 이 변경의 핵심이다. 한도를 다 쓴 방문자에게 오류 화면만 보여 주는 것보다,
+ * 조금 지난 목록이라도 보여 주고 최신이 아닐 수 있다고 알리는 편이 낫다.
+ *
+ * forceRefresh는 "다시 시도"용이다. 캐시를 읽지 않고 반드시 요청을 보내되,
+ * 그 요청마저 실패하면 남아 있는 캐시로 되돌아간다.
+ */
+export const loadRepositories = async (username, { forceRefresh = false } = {}) => {
+  const cached = forceRefresh ? null : readCache(username);
+
+  if (cached && Date.now() - cached.savedAt < CACHE_TTL) {
+    return { repositories: cached.repositories, fromCache: true, savedAt: cached.savedAt };
+  }
+
+  try {
+    const repositories = await fetchRepositories(username);
+
+    writeStoredCache(username, JSON.stringify({ savedAt: Date.now(), repositories }));
+
+    return { repositories, fromCache: false, savedAt: null };
+  } catch (error) {
+    // forceRefresh였다면 위에서 읽지 않았으므로 여기서 한 번 더 확인한다.
+    const fallback = cached ?? readCache(username);
+
+    if (!fallback) throw error;
+
+    return { repositories: fallback.repositories, fromCache: true, savedAt: fallback.savedAt };
+  }
 };
 
 /** 응답에서 화면에 쓸 값만 뽑고, 비어 있을 수 있는 필드는 대체 텍스트로 채운다. */
