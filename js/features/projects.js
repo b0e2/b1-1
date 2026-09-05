@@ -5,16 +5,19 @@
  * 데이터를 가져오는 일은 github-api.js가 맡고, 이 파일은 그것을
  * 언제 부르고 결과를 어떤 상태로 옮길지만 정한다.
  *
- *   loadProjects → status: 'loading' → 요청 → ready / empty / error → renderProjects
+ *   loadProjects → status: 'loading' → 목록 요청 → ready / empty / error → renderProjects
  *
  * 사용자에게 보여 주는 상태는 loading·ready·error·empty 네 가지이고 한 번에
  * 하나만 그린다. idle은 부팅 전 내부 상태라 화면을 갖지 않는다.
+ *
+ * 목록이 네트워크에서 왔는지 저장해 둔 캐시에서 왔는지는 github-api.js가 정하고,
+ * 이 파일은 그 결과를 상태로 옮겨 안내 문구를 고르는 데만 쓴다.
  */
 import { getState, setState } from '../store.js';
 import { $, $$, escapeHtml } from '../dom.js';
 import {
   FALLBACK_LANGUAGE,
-  fetchRepositories,
+  loadRepositories,
   normalizeRepository,
   selectPortfolioRepositories,
   sortByRecentPush,
@@ -74,11 +77,18 @@ const PUSHED_AT_FORMAT = new Intl.DateTimeFormat('ko-KR', {
   day: 'numeric',
 });
 
+/** 캐시를 받아 둔 시각. 같은 날 안의 이야기라 시:분이면 충분하다. */
+const CACHED_AT_FORMAT = new Intl.DateTimeFormat('ko-KR', {
+  hour: '2-digit',
+  minute: '2-digit',
+});
+
 let filtersElement = null;
 let statusElement = null;
 let gridElement = null;
 let demoElement = null;
 let demoNoticeElement = null;
+let projectsSection = null;
 
 /** 필터 버튼은 언어 목록이 달라졌을 때만 다시 만든다. 매번 새로 그리면 포커스가 날아간다. */
 let renderedLanguageKey = '';
@@ -111,21 +121,42 @@ const collectLanguages = (items) =>
   );
 
 /**
- * 요청 한 번의 전 과정.
+ * 목록 한 번을 채우는 전 과정.
  * 시작할 때 loading으로 바꾸고, 끝나면 결과에 따라 세 갈래로 나뉜다.
+ *
+ * 유효한 캐시가 있으면 loadRepositories가 요청 없이 바로 돌려주므로 loading이
+ * 눈에 보이기 전에 끝난다. 그래도 loading을 거쳐 가는 흐름은 그대로 둔다.
+ * 캐시가 없을 때와 상태 전환이 갈라지면 추적할 경로만 늘기 때문이다.
+ *
+ * forceRefresh는 "다시 시도"에서만 켠다. 캐시를 건너뛰고 반드시 요청을 보낸다.
  */
-const loadProjects = async () => {
+const loadProjects = async ({ forceRefresh = false } = {}) => {
   setProjects({ status: 'loading', errorMessage: '' });
 
   try {
-    const repositories = await fetchRepositories(GITHUB_USERNAME);
+    const { repositories, fromCache, savedAt, isStale } = await loadRepositories(GITHUB_USERNAME, {
+      forceRefresh,
+    });
     const items = sortByRecentPush(
       selectPortfolioRepositories(repositories).map(normalizeRepository),
     );
 
-    setProjects({ status: items.length > 0 ? 'ready' : 'empty', items });
+    setProjects({
+      status: items.length > 0 ? 'ready' : 'empty',
+      items,
+      usedCache: fromCache,
+      cachedAt: savedAt,
+      cacheIsStale: isStale,
+    });
   } catch (error) {
-    setProjects({ status: 'error', items: [], errorMessage: resolveErrorMessage(error) });
+    setProjects({
+      status: 'error',
+      items: [],
+      errorMessage: resolveErrorMessage(error),
+      usedCache: false,
+      cachedAt: null,
+      cacheIsStale: false,
+    });
   }
 };
 
@@ -149,7 +180,28 @@ const handleStatusClick = (event) => {
     return;
   }
 
-  loadProjects();
+  // 다시 시도를 눌렀다면 저장해 둔 목록이 아니라 새 응답을 보고 싶다는 뜻이다.
+  loadProjects({ forceRefresh: true });
+};
+
+/**
+ * 안내 줄의 새로고침. 캐시로 그려진 화면에서 강제로 새 요청을 보내는 유일한 경로다.
+ * 성공하면 안내가 사라지면서 버튼도 없어지므로 포커스가 갈 곳을 직접 정해 준다.
+ */
+const handleNoticeClick = async (event) => {
+  if (!event.target.closest('#projects-refresh')) return;
+
+  await loadProjects({ forceRefresh: true });
+
+  const refreshButton = $('#projects-refresh');
+
+  if (refreshButton) {
+    refreshButton.focus();
+
+    return;
+  }
+
+  projectsSection.focus({ preventScroll: true });
 };
 
 const handleFilterClick = (event) => {
@@ -175,11 +227,13 @@ export const initProjects = () => {
   gridElement = $('#projects-grid');
   demoElement = $('#state-demo');
   demoNoticeElement = $('#projects-demo-notice');
+  projectsSection = $('#projects');
 
   // 재시도 버튼과 필터 버튼은 렌더될 때마다 새로 생기므로, 컨테이너에서 위임해 받는다.
   statusElement.addEventListener('click', handleStatusClick);
   filtersElement.addEventListener('click', handleFilterClick);
   demoElement.addEventListener('click', handleDemoClick);
+  demoNoticeElement.addEventListener('click', handleNoticeClick);
 
   loadProjects();
 };
@@ -311,18 +365,65 @@ const renderDemoControl = (demo) => {
   });
 };
 
-const renderDemoNotice = (demo) => {
-  const isDemo = demo !== LIVE_DATA;
+/*
+ * 카드 영역 위의 안내 한 줄. 데모 안내와 캐시 안내가 같은 자리를 나눠 쓴다.
+ * 데모를 보고 있을 때는 지금 화면이 실제 응답이 아니라는 사실이 먼저이므로 그쪽을 띄운다.
+ * 데모 중에는 요청을 만들지 않는 것이 규칙이라 새로고침 버튼도 붙이지 않는다.
+ *
+ * 캐시 안내는 두 가지로 나뉜다. 유효 기간 안의 캐시는 지금 무엇을 보고 있는지만 조용히
+ * 알리고, 요청이 실패해 꺼내 쓴 캐시에만 최신이 아닐 수 있다는 경고를 붙인다.
+ * 반복 방문마다 경고가 뜨면 정상 동작인데도 화면이 시끄러워진다.
+ */
+const resolveNotice = (demo, usedCache, cachedAt, cacheIsStale) => {
+  if (demo !== LIVE_DATA) {
+    return {
+      variant: 'demo',
+      message: 'STATE DEMO — 화면 확인용 예시입니다. 실제 응답이 아니며 요청을 보내지 않습니다.',
+      refreshable: false,
+    };
+  }
 
-  demoNoticeElement.hidden = !isDemo;
-  demoNoticeElement.textContent = isDemo
-    ? 'STATE DEMO — 화면 확인용 예시입니다. 실제 응답이 아니며 요청을 보내지 않습니다.'
+  if (!usedCache || !cachedAt) return null;
+
+  const savedAt = CACHED_AT_FORMAT.format(cachedAt);
+
+  return cacheIsStale
+    ? {
+        variant: 'stale',
+        message: `새 목록을 받지 못해 ${savedAt}에 저장해 둔 목록을 보여 줍니다. 최신이 아닐 수 있습니다.`,
+        refreshable: true,
+      }
+    : { variant: 'cached', message: `${savedAt}에 저장해 둔 목록입니다.`, refreshable: true };
+};
+
+/*
+ * 내용이 그대로면 다시 그리지 않는다. 필터를 누를 때마다 innerHTML을 새로 넣으면
+ * 안내 안의 새로고침 버튼이 매번 교체되어 거기 있던 포커스가 사라진다.
+ */
+let renderedNoticeKey = '';
+
+const renderNotice = (demo, usedCache, cachedAt, cacheIsStale) => {
+  const notice = resolveNotice(demo, usedCache, cachedAt, cacheIsStale);
+  const key = notice ? `${notice.variant}|${notice.message}` : '';
+
+  if (key === renderedNoticeKey) return;
+
+  renderedNoticeKey = key;
+  demoNoticeElement.hidden = notice === null;
+  demoNoticeElement.classList.toggle('projects__demo-notice--stale', notice?.variant === 'stale');
+  demoNoticeElement.innerHTML = notice
+    ? `<span class="projects__notice-text">${notice.message}</span>${
+        notice.refreshable
+          ? '<button class="projects__notice-refresh" id="projects-refresh" type="button">새로고침</button>'
+          : ''
+      }`
     : '';
 };
 
 /** 상태를 받아 화면에만 반영한다. */
 export const renderProjects = ({ projects }) => {
-  const { status, items, language, errorMessage, demo } = projects;
+  const { status, items, language, errorMessage, demo, usedCache, cachedAt, cacheIsStale } =
+    projects;
 
   /*
    * 데모를 고르면 불러온 데이터는 그대로 둔 채 그릴 상태만 바꿔치기한다.
@@ -341,7 +442,7 @@ export const renderProjects = ({ projects }) => {
   // 칩은 실제 목록이 있을 때만 둔다. 필터 때문에 비었을 때도 남아야 되돌릴 수 있다.
   renderFilters(dataStatus === 'ready' && items.length > 0, items, language);
   renderDemoControl(demo);
-  renderDemoNotice(demo);
+  renderNotice(demo, usedCache, cachedAt, cacheIsStale);
 
   /*
    * 카드 자리는 언제나 한 가지만 차지한다. ready면 카드, loading이면 스켈레톤,

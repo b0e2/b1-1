@@ -34,6 +34,19 @@ let state = {
      */
     // 'live' | 'loading' | 'error' | 'empty'
     demo: 'live',
+
+    /*
+     * 지금 화면의 목록이 브라우저에 저장해 둔 응답에서 왔는지와, 그 응답을 받아 둔 시각.
+     * 안내 문구를 고르는 데만 쓴다. 상태 이름은 여전히 loading·ready·error·empty 넷이다.
+     */
+    usedCache: false,
+    cachedAt: null,
+
+    /*
+     * 유효 기간 안의 캐시인지, 요청이 실패해 어쩔 수 없이 꺼내 쓴 캐시인지.
+     * 전자는 조용히 알리고 후자에만 최신이 아닐 수 있다는 경고를 붙인다.
+     */
+    cacheIsStale: false,
   },
 
   form: {
