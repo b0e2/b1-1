@@ -160,7 +160,14 @@ const handleFilterClick = (event) => {
   setProjects({ language: button.dataset.language });
 };
 
-const handleDemoChange = (event) => setProjects({ demo: event.target.value });
+/** 버튼은 상태마다 다시 그리지 않으므로 컨테이너에서 한 번만 위임해 받는다. */
+const handleDemoClick = (event) => {
+  const button = event.target.closest('.state-demo__btn');
+
+  if (!button) return;
+
+  setProjects({ demo: button.dataset.demo });
+};
 
 export const initProjects = () => {
   filtersElement = $('#project-filters');
@@ -172,7 +179,7 @@ export const initProjects = () => {
   // 재시도 버튼과 필터 버튼은 렌더될 때마다 새로 생기므로, 컨테이너에서 위임해 받는다.
   statusElement.addEventListener('click', handleStatusClick);
   filtersElement.addEventListener('click', handleFilterClick);
-  demoElement.addEventListener('change', handleDemoChange);
+  demoElement.addEventListener('click', handleDemoClick);
 
   loadProjects();
 };
@@ -294,12 +301,22 @@ const renderLiveRegion = (screen) => {
   statusElement.setAttribute('aria-live', region.live);
 };
 
+/** 지금 보고 있는 상태만 밝게 띄운다. 필터 칩과 같은 aria-pressed 방식이다. */
+const renderDemoControl = (demo) => {
+  $$('.state-demo__btn', demoElement).forEach((button) => {
+    const isActive = button.dataset.demo === demo;
+
+    button.classList.toggle('is-active', isActive);
+    button.setAttribute('aria-pressed', String(isActive));
+  });
+};
+
 const renderDemoNotice = (demo) => {
   const isDemo = demo !== LIVE_DATA;
 
   demoNoticeElement.hidden = !isDemo;
   demoNoticeElement.textContent = isDemo
-    ? 'STATE DEMO — 화면 확인용 예시입니다. 실제 응답이 아닙니다.'
+    ? 'STATE DEMO — 화면 확인용 예시입니다. 실제 응답이 아니며 요청을 보내지 않습니다.'
     : '';
 };
 
@@ -323,6 +340,7 @@ export const renderProjects = ({ projects }) => {
 
   // 칩은 실제 목록이 있을 때만 둔다. 필터 때문에 비었을 때도 남아야 되돌릴 수 있다.
   renderFilters(dataStatus === 'ready' && items.length > 0, items, language);
+  renderDemoControl(demo);
   renderDemoNotice(demo);
 
   /*
@@ -346,7 +364,4 @@ export const renderProjects = ({ projects }) => {
           errorMessage: demo === LIVE_DATA ? errorMessage : ERROR_MESSAGES.default,
           isFilteredEmpty: isFilteredEmpty && language !== ALL_LANGUAGES,
         });
-
-  // 재시도가 실데이터로 되돌리는 경우처럼 상태가 코드로 바뀌면 컨트롤도 따라와야 한다.
-  if (demoElement.value !== demo) demoElement.value = demo;
 };

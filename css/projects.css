@@ -175,8 +175,8 @@
  * 실제 데이터와 헷갈리지 않도록 라벨과 설명으로 성격을 밝힌다.
  */
 .state-demo {
-  display: grid;
-  grid-template-columns: auto auto;
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--space-1);
   margin-left: auto;
@@ -189,27 +189,36 @@
   color: var(--color-muted);
 }
 
-.state-demo__select {
-  min-height: 2.25rem;
+/* 좁은 화면에서 네 버튼이 줄바꿈되어도 라벨과 어긋나지 않게 따로 묶는다. */
+.state-demo__options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+/*
+ * 네 버튼 모두 점선이고, 지금 보고 있는 상태만 밝은 선과 글자로 떠오른다.
+ * 언어 필터 칩과 달리 완전한 pill이 아니라 각을 조금 남긴 사각형이어서,
+ * 데이터를 거르는 칩과 화면을 바꿔 보는 컨트롤이 한눈에 구분된다.
+ */
+.state-demo__btn {
+  min-height: 2.75rem;
   padding: 0 var(--space-2);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-pill);
-  background-color: var(--color-surface);
-  font-family: var(--font-mono);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-input);
   font-size: var(--text-xs);
-  transition: border-color var(--transition-fast);
-}
-
-.state-demo__select:hover {
-  border-color: var(--color-text);
-}
-
-.state-demo__hint {
-  grid-column: 1 / -1;
-  font-size: var(--text-xs);
-  line-height: 1.5;
   color: var(--color-muted);
-  text-align: right;
+  white-space: nowrap;
+  transition: border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.state-demo__btn:hover {
+  color: var(--color-text);
+}
+
+.state-demo__btn.is-active {
+  border-color: var(--color-text);
+  color: var(--color-text);
 }
 
 /* 데모를 보는 동안 카드 영역이 실데이터가 아님을 계속 알린다. */

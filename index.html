@@ -173,14 +173,14 @@
             선택값은 저장하지 않으므로 새로고침하면 실데이터로 돌아온다.
           -->
           <div class="state-demo">
-            <label class="state-demo__label" for="state-demo">STATE DEMO</label>
-            <select class="state-demo__select" id="state-demo" aria-describedby="state-demo-hint">
-              <option value="live">실데이터</option>
-              <option value="loading">로딩</option>
-              <option value="error">에러</option>
-              <option value="empty">빈 상태</option>
-            </select>
-            <p class="state-demo__hint" id="state-demo-hint">화면 확인용이며 요청을 보내지 않습니다.</p>
+            <p class="state-demo__label" id="state-demo-label">STATE DEMO</p>
+
+            <div class="state-demo__options" id="state-demo" role="group" aria-labelledby="state-demo-label">
+              <button class="state-demo__btn" type="button" data-demo="live" aria-pressed="true">실데이터</button>
+              <button class="state-demo__btn" type="button" data-demo="loading" aria-pressed="false">로딩</button>
+              <button class="state-demo__btn" type="button" data-demo="error" aria-pressed="false">에러</button>
+              <button class="state-demo__btn" type="button" data-demo="empty" aria-pressed="false">빈 상태</button>
+            </div>
           </div>
         </div>
 
