@@ -19,11 +19,21 @@ let state = {
   },
 
   projects: {
-    // 'idle' | 'loading' | 'success' | 'error' | 'empty'
+    // 'idle' | 'loading' | 'ready' | 'error' | 'empty'
+    // idle은 부팅 전 내부 상태이며 사용자에게 보여 주는 상태로 세지 않는다.
     status: 'idle',
     items: [],
     language: 'all',
     errorMessage: '',
+
+    /*
+     * 화면 확인용 상태 데모 선택값. 'live'면 위의 status를 그대로 쓰고,
+     * 그 밖의 값이면 그 상태의 화면을 대신 그린다. 불러온 items를 지우지 않으므로
+     * 실데이터로 돌아올 때 다시 요청할 필요가 없다.
+     * 저장하지 않는 값이라 새로고침하면 'live'로 돌아온다.
+     */
+    // 'live' | 'loading' | 'error' | 'empty'
+    demo: 'live',
   },
 
   form: {
