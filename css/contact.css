@@ -1,0 +1,82 @@
+/*
+ * Contact 섹션의 표현. features/contact-form.js와 짝을 이룬다.
+ * 입력 컨트롤, 오류 표시, 성공 안내가 여기 모인다.
+ * 글자 수 안내와 성공 패널 교체는 R4에서 이 파일에 이어 붙인다.
+ */
+
+/*
+ * 폼은 섹션 전체 폭을 쓰지 않는다. 입력 한 줄이 지나치게 길면 시선이 왕복해
+ * 오히려 읽기 어렵기 때문에, 컨테이너는 그대로 두고 폼 폭만 묶는다.
+ */
+.form {
+  display: grid;
+  gap: var(--space-3);
+  max-width: 34rem;
+}
+
+/* 제출 버튼은 grid 칸을 꽉 채우지 않고 내용 폭만 차지한다. */
+.form .btn {
+  justify-self: start;
+}
+
+.form__field {
+  display: grid;
+  gap: 0.375rem;
+}
+
+.form__label {
+  font-size: var(--text-sm);
+  font-weight: 500;
+}
+
+.form__required {
+  color: var(--color-danger);
+}
+
+.form__input {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-input);
+  background-color: var(--color-surface);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.form__input::placeholder {
+  color: color-mix(in srgb, var(--color-muted) 70%, transparent);
+}
+
+.form__input:hover {
+  border-color: color-mix(in srgb, var(--color-text) 35%, var(--color-border));
+}
+
+.form__input--area {
+  min-height: 9rem;
+  padding: var(--space-2);
+  resize: vertical;
+}
+
+/* 검증에 걸린 입력은 테두리 색만으로도 구분되게 한다. */
+.form__input[aria-invalid="true"] {
+  border-color: var(--color-danger-border);
+  background-color: var(--color-danger-bg);
+}
+
+/*
+ * 오류 문구 자리를 미리 비워 둔다.
+ * 문구가 나타날 때마다 아래 입력이 밀리면 입력 도중 클릭 위치가 흔들린다.
+ */
+.form__error {
+  min-height: 1.25rem;
+  font-size: var(--text-sm);
+  color: var(--color-danger-fg);
+}
+
+.form__success:not(:empty) {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid color-mix(in srgb, var(--color-accent) 55%, var(--color-border));
+  border-radius: var(--radius-input);
+  background-color: color-mix(in srgb, var(--color-accent) 14%, transparent);
+  font-size: var(--text-base);
+}
