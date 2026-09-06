@@ -10,11 +10,23 @@
  * 피드백 시점은 두 단계다. 처음 쓰는 동안에는 아무 말도 하지 않다가,
  * 필드를 한 번 떠난(blur) 뒤부터 그 필드만 글자마다 다시 봐 준다.
  * 다 쓰지도 않은 입력에 "이름을 입력해 주세요"를 들이밀지 않기 위해서다.
+ *
+ * 검증을 통과하면 Formspree로 실제 전송한다. 요청이 떠 있는 동안과 실패한 뒤가
+ * 서로 다른 화면이어야 하므로, 제출 이후의 진행을 status 한 값으로 관리한다.
+ *
+ *   submit → sending → (성공) sent   → 성공 패널
+ *                    → (실패) failed → 입력값을 남긴 채 사유 안내
  */
 import { getState, setState } from '../store.js';
 import { $ } from '../dom.js';
 
 const FIELDS = ['name', 'email', 'message'];
+
+/**
+ * 폼 전송을 받아 주는 Formspree 엔드포인트.
+ * 서버 없이 정적 호스팅만으로 메일을 받기 위한 경로이고, 공개돼도 되는 값이다.
+ */
+const FORM_ENDPOINT = 'https://formspree.io/f/xeaqlyoq';
 
 /**
  * @ 앞뒤가 있고, 점 뒤 최상위 도메인이 두 글자 이상인지까지 본다.
@@ -38,7 +50,20 @@ const EMPTY_VALUES = { name: '', email: '', message: '' };
 const EMPTY_ERRORS = { name: '', email: '', message: '' };
 const UNTOUCHED = { name: false, email: false, message: false };
 
+/**
+ * 전송 실패 안내. 사용자가 할 수 있는 일이 달라지므로 사유를 나눈다.
+ * 422는 Formspree가 값을 거절한 경우이고, 429는 이 폼의 한도를 넘긴 경우다.
+ */
+const SEND_ERROR_MESSAGES = {
+  422: '입력값을 다시 확인해 주세요.',
+  429: '잠시 뒤에 다시 보내 주세요. 짧은 시간에 너무 많이 전송되었습니다.',
+  default: '메시지를 보내지 못했습니다. 잠시 후 다시 시도해 주세요.',
+};
+
 const MESSAGE_COUNT_ID = 'contact-message-count';
+
+const SENDING_LABEL = '보내는 중…';
+const SUBMIT_LABEL = '보내기';
 
 let formElement = null;
 let successElement = null;
@@ -46,6 +71,7 @@ let alertElement = null;
 let messageCountElement = null;
 let successNameElement = null;
 let successEmailElement = null;
+let submitButton = null;
 
 const inputs = {};
 const errorElements = {};
@@ -99,11 +125,37 @@ const handleFieldBlur = ({ target: { name, value } }) => {
   });
 };
 
-const handleSubmit = (event) => {
+const resolveSendError = ({ status }) => SEND_ERROR_MESSAGES[status] ?? SEND_ERROR_MESSAGES.default;
+
+/**
+ * 검증을 통과한 값을 Formspree로 보낸다.
+ * 실패하면 응답 코드를 담은 Error를 던져서, 부르는 쪽이 안내를 고를 수 있게 한다.
+ * 네트워크 자체가 끊겼을 때는 fetch가 status 없는 오류를 던지므로 기본 문구로 떨어진다.
+ */
+const sendMessage = async (values) => {
+  const response = await fetch(FORM_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify(values),
+  });
+
+  if (!response.ok) {
+    const error = new Error(`폼 전송 응답 오류 (${response.status})`);
+
+    error.status = response.status;
+    throw error;
+  }
+};
+
+const handleSubmit = async (event) => {
   // 기본 동작은 페이지를 새로 불러오는 것이라 상태가 모두 사라진다.
   event.preventDefault();
 
-  const { values } = getState().form;
+  const { values, status } = getState().form;
+
+  // 요청이 떠 있는 동안 다시 눌러도 같은 메시지를 두 번 보내지 않는다.
+  if (status === 'sending') return;
+
   const errors = validateForm(values);
   const invalidFields = FIELDS.filter((field) => errors[field]);
 
@@ -116,7 +168,7 @@ const handleSubmit = (event) => {
       touched: { name: true, email: true, message: true },
       errors,
       submitAlert: `확인이 필요한 항목이 ${invalidFields.length}개 있습니다.`,
-      sent: false,
+      status: 'idle',
     });
 
     // 요약은 개수만 알린다. 무엇이 틀렸는지는 이동한 필드의 안내가 설명한다.
@@ -125,11 +177,22 @@ const handleSubmit = (event) => {
     return;
   }
 
-  // 실제 전송은 이번 과제 범위가 아니라, 검증을 통과했음을 알리는 데서 끝낸다.
-  setForm({ errors: { ...EMPTY_ERRORS }, submitAlert: '', sent: true });
+  setForm({ errors: { ...EMPTY_ERRORS }, submitAlert: '', status: 'sending' });
 
-  // 방금까지 포커스가 있던 제출 버튼이 숨겨지므로, 갈 곳을 직접 정해 준다.
-  successElement.focus();
+  try {
+    await sendMessage(values);
+
+    setForm({ status: 'sent', submitAlert: '' });
+
+    // 방금까지 포커스가 있던 제출 버튼이 숨겨지므로, 갈 곳을 직접 정해 준다.
+    successElement.focus();
+  } catch (error) {
+    /*
+     * 값은 그대로 남긴다. 보내지 못한 것은 네트워크 사정이지 입력의 잘못이 아니므로,
+     * 사용자가 같은 내용을 다시 쓰게 만들 이유가 없다. 포커스도 제출 버튼에 그대로 둔다.
+     */
+    setForm({ status: 'failed', submitAlert: resolveSendError(error) });
+  }
 };
 
 /** 성공 패널에서 되돌아오면 폼은 처음 상태여야 한다. */
@@ -139,7 +202,7 @@ const handleReset = () => {
     touched: { ...UNTOUCHED },
     errors: { ...EMPTY_ERRORS },
     submitAlert: '',
-    sent: false,
+    status: 'idle',
   });
 
   inputs.name.focus();
@@ -152,6 +215,7 @@ export const initContactForm = () => {
   messageCountElement = $(`#${MESSAGE_COUNT_ID}`);
   successNameElement = $('#contact-success-name');
   successEmailElement = $('#contact-success-email');
+  submitButton = $('#contact-submit');
 
   FIELDS.forEach((field) => {
     inputs[field] = $(`#contact-${field}`);
@@ -178,7 +242,10 @@ const describedBy = (field, hasError) => {
 };
 
 /** 상태를 받아 화면에만 반영한다. 여기서 상태를 바꾸지 않는다. */
-export const renderContactForm = ({ form: { values, errors, submitAlert, sent } }) => {
+export const renderContactForm = ({ form: { values, errors, submitAlert, status } }) => {
+  const isSending = status === 'sending';
+  const isSent = status === 'sent';
+
   FIELDS.forEach((field) => {
     const input = inputs[field];
     const message = errors[field];
@@ -208,13 +275,21 @@ export const renderContactForm = ({ form: { values, errors, submitAlert, sent } 
   }
 
   /*
+   * 전송 중에는 버튼을 잠가 같은 메시지가 두 번 나가지 않게 하고,
+   * 글자로도 진행을 알린다. 핸들러에서도 한 번 더 막지만, 눌리는 버튼을
+   * 그대로 두면 아무 일도 일어나지 않는 것처럼 보인다.
+   */
+  submitButton.disabled = isSending;
+  submitButton.textContent = isSending ? SENDING_LABEL : SUBMIT_LABEL;
+
+  /*
    * 폼과 성공 패널은 둘 다 DOM에 남아 있고 보이는 쪽만 바뀐다.
    * 값을 지우지 않으므로 성공 패널이 방금 보낸 이름과 이메일을 그대로 쓸 수 있다.
    */
-  formElement.hidden = sent;
-  successElement.hidden = !sent;
+  formElement.hidden = isSent;
+  successElement.hidden = !isSent;
 
-  if (sent) {
+  if (isSent) {
     successNameElement.textContent = values.name;
     successEmailElement.textContent = values.email;
   }
