@@ -93,7 +93,13 @@
   gap: var(--space-4);
 }
 
+/*
+ * 한 열로 쌓일 때는 사진이 먼저 온다. 버튼 뒤에 사진이 남으면 행동을 권한 다음에
+ * 다시 소개로 돌아가는 셈이라 흐름이 끊기고, 사진 오른쪽에 빈 칸만 넓게 남는다.
+ * 마크업 순서는 데스크톱 2열 구도와 읽는 순서에 맞춰 두고 배치만 바꾼다.
+ */
 .hero__figure {
+  order: -1;
   justify-self: start;
 }
 
@@ -205,6 +211,11 @@
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
     gap: var(--space-5);
+  }
+
+  /* 2열에서는 사진이 오른쪽 칸이므로 순서를 되돌린다. */
+  .hero__figure {
+    order: 0;
   }
 
   /*
