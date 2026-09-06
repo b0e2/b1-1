@@ -1,11 +1,9 @@
-# 정빈 포트폴리오
+# 포트폴리오
 
 HTML, CSS, JavaScript로 만든 반응형 포트폴리오입니다. 테마, 내비게이션, 프로젝트 목록, 문의 폼을 기능별 모듈로 구성했습니다.
 
 - 배포 URL: https://b0e2.github.io/b1-1/
 - 저장소: https://github.com/b0e2/b1-1
-
-> 현재 릴리스 전이라 공개 URL에는 이전 화면이 표시됩니다. 이 문장은 릴리스 후 삭제합니다.
 
 ## 사용 기술
 
@@ -80,17 +78,11 @@ GitHub Pages에서 `main` 브랜치의 `/ (root)`를 서비스합니다.
 
 ## 스크린샷
 
-### 데스크톱 라이트 · 1440px
-
-![데스크톱 라이트 화면](.github/screenshots/desktop-light.png)
-
-### 데스크톱 다크 · 1440px
-
-![데스크톱 다크 화면](.github/screenshots/desktop-dark.png)
-
-### 모바일 다크 · 390px
-
-![모바일 다크 화면](.github/screenshots/mobile-dark.png)
+| 데스크톱 라이트 · 1440px | 데스크톱 다크 · 1440px |
+| --- | --- |
+| ![데스크톱 라이트 화면](.github/screenshots/desktop-light.png) | ![데스크톱 다크 화면](.github/screenshots/desktop-dark.png) |
+| 모바일 다크 · 390px | |
+| ![모바일 다크 화면](.github/screenshots/mobile-dark.png) | |
 
 프로젝트 언어와 최근 push일은 촬영 시점의 응답을 기준으로 합니다.
 
