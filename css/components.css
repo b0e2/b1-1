@@ -43,6 +43,27 @@
   border-color: var(--color-text);
 }
 
+/*
+ * 전송 중처럼 지금은 누를 수 없는 버튼.
+ * hover 반응까지 함께 끊어야 "눌리는 버튼"으로 보이지 않는다.
+ */
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btn:disabled:hover {
+  transform: none;
+}
+
+.btn--primary:disabled:hover {
+  background-color: var(--color-accent);
+}
+
+.btn--ghost:disabled:hover {
+  border-color: var(--color-border);
+}
+
 /* ── 태그 칩 ────────────────────────────────────── */
 
 .tag-list {

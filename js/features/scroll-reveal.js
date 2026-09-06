@@ -31,16 +31,33 @@ export const initScrollReveal = () => {
 
   document.documentElement.classList.add(ENABLED_CLASS);
 
+  let revealedCount = 0;
+
+  /*
+   * 마지막 요소까지 나타나면 이 기능은 할 일이 끝난다.
+   * 스위치를 끄면 `.js-reveal .reveal` 규칙이 더는 걸리지 않으므로,
+   * 요소마다 남아 있던 opacity·transform과 transition 선언이 함께 사라진다.
+   * 지금 화면은 그대로 두면서 끝난 효과의 흔적만 걷어내는 정리다.
+   */
+  const finish = () => {
+    observer.disconnect();
+    document.documentElement.classList.remove(ENABLED_CLASS);
+    targets.forEach((target) => target.classList.remove(VISIBLE_CLASS));
+  };
+
   const observer = new IntersectionObserver(
     (entries) => {
       entries.forEach(({ target, isIntersecting }) => {
         if (!isIntersecting) return;
 
         target.classList.add(VISIBLE_CLASS);
+        revealedCount += 1;
 
         // 한 번 보인 요소는 다시 볼 필요가 없으므로 관찰을 끊는다.
         observer.unobserve(target);
       });
+
+      if (revealedCount === targets.length) finish();
     },
     { threshold: REVEAL_THRESHOLD },
   );
