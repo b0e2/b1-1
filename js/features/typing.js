@@ -15,7 +15,7 @@ import { $ } from '../dom.js';
 
 /** 확정 문구 3개. 각각 두 줄이며 줄바꿈은 CSS의 pre-line이 그대로 살린다. */
 const PHRASES = [
-  'Android부터 Flutter까지\n모바일을 완성했습니다.',
+  'Android부터 Flutter까지\n모바일 서비스를 개발했습니다.',
   '화면 구현을 넘어\n데이터의 흐름을 봅니다.',
   'AI와 백엔드로\n역량을 확장하고 있습니다.',
 ];

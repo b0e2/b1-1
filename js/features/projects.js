@@ -247,7 +247,9 @@ const createCardMarkup = ({ name, description, language, stars, url, isFork, pus
   <article class="project-card">
     <div class="project-card__head">
       <h3 class="project-card__title">
-        <a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(name)}</a>
+        <a class="project-card__link" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">
+          ${escapeHtml(name)}<span class="project-card__mark" aria-hidden="true">↗</span><span class="sr-only">GitHub에서 열기</span>
+        </a>
       </h3>
       ${createBadgeMarkup(isFork)}
     </div>
