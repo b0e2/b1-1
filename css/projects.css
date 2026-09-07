@@ -50,12 +50,36 @@
   font-size: var(--text-md);
 }
 
-.project-card__title a {
+/*
+ * 제목이 곧 저장소로 나가는 링크다. 눌러 보기 전에는 알 수 없으므로 화살표를
+ * 붙여 미리 알린다. Projects 섹션 위쪽의 계정 링크와 같은 표시를 써서
+ * 이 화면 안에서 "밖으로 나간다"는 신호가 한 가지로 유지된다.
+ */
+.project-card__link {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.25rem;
   transition: color var(--transition-fast);
 }
 
-.project-card__title a:hover {
+.project-card__link:hover {
   color: color-mix(in srgb, var(--color-accent) 70%, var(--color-text));
+}
+
+/*
+ * 평소에는 흐리게 두고 카드에 마우스를 올리면 제목과 같은 색이 된다.
+ * 카드마다 붙는 표시라 기본 상태에서 제목만큼 눈에 띄면 목록이 시끄러워진다.
+ */
+.project-card__mark {
+  font-size: 0.85em;
+  color: var(--color-muted);
+  transition: color var(--transition-fast), transform var(--transition-fast);
+}
+
+.project-card:hover .project-card__mark,
+.project-card__link:focus-visible .project-card__mark {
+  color: inherit;
+  transform: translate(0.1em, -0.1em);
 }
 
 .project-card__description {
@@ -348,5 +372,11 @@
   /* pulse는 자리를 알리는 역할만 하므로, 멈춰도 스켈레톤은 그대로 보인다. */
   .skeleton {
     animation: none;
+  }
+
+  /* 색 변화만 남기고 화살표가 움직이는 부분은 뺀다. */
+  .project-card:hover .project-card__mark,
+  .project-card__link:focus-visible .project-card__mark {
+    transform: none;
   }
 }
