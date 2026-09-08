@@ -40,7 +40,11 @@ const writeStoredTheme = (theme) => {
  */
 const systemScheme = window.matchMedia('(prefers-color-scheme: dark)');
 
-/** 저장된 선택이 최우선이고, 없을 때만 운영체제 설정을 따른다. */
+/**
+ * 저장값은 "마지막으로 정해진 테마"다. 토글로 고른 값이든 운영체제를 따라간
+ * 값이든 같은 자리에 남으므로, 다시 열었을 때 마지막 화면을 그대로 이어간다.
+ * 저장값이 없는 첫 방문에만 운영체제 설정을 읽는다.
+ */
 const resolveInitialTheme = () => readStoredTheme() ?? (systemScheme.matches ? 'dark' : 'light');
 
 const applyTheme = (theme) => {
@@ -56,16 +60,17 @@ const handleToggleClick = () => {
 
 /**
  * 페이지를 연 채로 운영체제 설정이 바뀌면 화면도 따라간다.
- * 첫 값만 읽고 끝내면 사용자는 새로고침해야 반영되는 이유를 알 수 없다.
  *
- * 다만 직접 고른 값이 있으면 그 선택을 계속 우선한다. 저장하지도 않는다.
- * 여기서 저장하면 사용자가 고르지 않은 값이 저장된 선택으로 남아,
- * 이후 시스템 설정을 따라갈 길이 영영 막힌다.
+ * 저장값이 있어도 따라간다. 규칙은 하나다 — 마지막에 들어온 신호가 지금 테마다.
+ * 운영체제를 바꾸는 것도 사용자가 직접 한 행동이므로, 예전에 누른 토글보다
+ * 더 최근의 의사로 본다. 저장된 선택을 우선하면 토글을 한 번 누른 뒤로는
+ * 시스템을 따라갈 길이 없어지고, UI에는 그 상태를 풀 방법도 없다.
+ *
+ * 따라간 값도 저장한다. 저장하지 않으면 새로고침에서 옛 선택으로 되돌아가
+ * 아무것도 누르지 않았는데 화면이 저절로 바뀐 것처럼 보인다.
  */
 const handleSystemSchemeChange = ({ matches }) => {
-  if (readStoredTheme()) return;
-
-  setState({ theme: matches ? 'dark' : 'light' });
+  applyTheme(matches ? 'dark' : 'light');
 };
 
 export const initTheme = () => {
