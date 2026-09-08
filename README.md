@@ -22,12 +22,14 @@ HTML, CSS, JavaScript로 만든 반응형 포트폴리오입니다. 외부 UI·J
 | 기능 | 동작 | 구현 |
 | --- | --- | --- |
 | 다크 모드 | 토글로 전환하고 `localStorage`에 저장해 새로고침 후에도 유지 | `js/features/theme.js` |
+| 시스템 테마 추종 | 저장된 선택이 없으면 시스템 설정을 따르고, 여는 도중 바뀌어도 즉시 반영 | `js/features/theme.js` |
 | 햄버거 메뉴 | 768px 미만에서 버튼 노출, `classList.toggle('active')`로 열고 닫음, Escape로 닫힘 | `js/features/navigation.js` |
 | 부드러운 스크롤 | 앵커 기본 이동을 막고 `scrollIntoView`로 이동한 뒤 대상 섹션에 포커스 | `js/features/navigation.js` |
 | 스크롤 탑 버튼 | 320px를 넘으면 나타나고 클릭 시 맨 위로 | `js/features/navigation.js` |
 | 헤더 배경 전환 | 60px를 넘으면 헤더에 배경과 경계선 | `js/features/navigation.js` |
 | 스크롤 애니메이션 | Intersection Observer(threshold `0.2`)로 등장, 전부 나타나면 관찰 해제 | `js/features/scroll-reveal.js` |
 | 프로젝트 목록 | GitHub API 응답을 카드로 렌더, 로딩·성공·에러·빈 상태 구분 | `js/features/projects.js` |
+| 외부 링크 표시 | 카드 제목이 저장소로 나가는 링크임을 화살표로 알림 | `js/features/projects.js` |
 | 응답 캐시 | 성공 응답을 10분간 `localStorage`에 보관, 요청 실패 시 대체 표시 | `js/github-api.js` |
 | 폼 유효성 검사 | 필수값·이메일 형식·메시지 길이를 검사하고 필드 옆에 오류 표시 | `js/features/contact-form.js` |
 | 폼 실제 전송 | Formspree로 POST, 전송 중에는 버튼을 잠가 중복 제출 차단 | `js/features/contact-form.js` |
@@ -61,11 +63,18 @@ subscribe(renderApp);
 ```js
 // 이벤트          js/features/theme.js
 toggleButton.addEventListener('click', handleToggleClick);
+systemScheme.addEventListener('change', handleSystemSchemeChange);
 
-// 상태 변경
+// 상태 변경 — 토글은 선택을 저장한다
 const handleToggleClick = () => {
   const { theme } = getState();
   applyTheme(theme === 'dark' ? 'light' : 'dark');  // setState + localStorage 저장
+};
+
+// 상태 변경 — 시스템 설정은 저장하지 않는다
+const handleSystemSchemeChange = ({ matches }) => {
+  if (readStoredTheme()) return;                    // 직접 고른 값이 우선
+  setState({ theme: matches ? 'dark' : 'light' });
 };
 
 // 렌더
@@ -189,6 +198,7 @@ js/github-api.js — 캐시 우선순위
 | 프로젝트 캐시 | `10분` |
 | 메시지 최소 길이 | 공백 제외 `10자` |
 | 브레이크포인트 | `768px` · `1024px` · `1180px` |
+| Hero 글자 크기 | 타이핑 자리가 두 줄로 고정돼 있어 좁은 구간에서는 폭에 비례해 줄어듭니다 |
 
 ### localStorage
 
@@ -197,7 +207,17 @@ js/github-api.js — 캐시 우선순위
 | `portfolio-theme` | `light` \| `dark` | `js/features/theme.js` |
 | `portfolio-repos:b0e2` | `{ savedAt, repositories }` | `js/github-api.js` |
 
-테마는 저장값을 먼저 사용하고, 값이 없을 때만 시스템 설정(`prefers-color-scheme`)을 따릅니다. 모션 축소 설정에서는 타이핑, 커서 blink, 등장 이동과 부드러운 이동을 멈춥니다.
+### 테마 우선순위
+
+| 상황 | 결과 |
+| --- | --- |
+| 저장값 없음 | 시스템 설정(`prefers-color-scheme`)을 따릅니다 |
+| 저장값 없이 여는 도중 시스템 설정이 바뀜 | 새로고침 없이 즉시 따라갑니다 |
+| 토글 버튼을 눌러 직접 고름 | 그 선택이 저장되고, 이후 시스템 설정보다 우선합니다 |
+
+직접 고른 뒤에는 시스템 설정을 바꿔도 화면이 그대로입니다. 사용자가 명시적으로 정한 값을 시스템 설정이 덮어쓰지 않도록 한 것입니다.
+
+모션 축소 설정에서는 타이핑, 커서 blink, 등장 이동, 부드러운 이동과 카드 화살표 움직임을 멈춥니다.
 
 ## 폴더 구조
 
