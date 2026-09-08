@@ -34,10 +34,14 @@ const writeStoredTheme = (theme) => {
   }
 };
 
-const prefersDarkScheme = () => window.matchMedia('(prefers-color-scheme: dark)').matches;
+/*
+ * 운영체제의 밝은/어두운 모드. 첫 값을 읽을 때와 도중에 바뀌는 것을 지켜볼 때
+ * 같은 객체를 쓰므로 한 번만 만들어 둔다.
+ */
+const systemScheme = window.matchMedia('(prefers-color-scheme: dark)');
 
 /** 저장된 선택이 최우선이고, 없을 때만 운영체제 설정을 따른다. */
-const resolveInitialTheme = () => readStoredTheme() ?? (prefersDarkScheme() ? 'dark' : 'light');
+const resolveInitialTheme = () => readStoredTheme() ?? (systemScheme.matches ? 'dark' : 'light');
 
 const applyTheme = (theme) => {
   setState({ theme });
@@ -50,11 +54,26 @@ const handleToggleClick = () => {
   applyTheme(theme === 'dark' ? 'light' : 'dark');
 };
 
+/**
+ * 페이지를 연 채로 운영체제 설정이 바뀌면 화면도 따라간다.
+ * 첫 값만 읽고 끝내면 사용자는 새로고침해야 반영되는 이유를 알 수 없다.
+ *
+ * 다만 직접 고른 값이 있으면 그 선택을 계속 우선한다. 저장하지도 않는다.
+ * 여기서 저장하면 사용자가 고르지 않은 값이 저장된 선택으로 남아,
+ * 이후 시스템 설정을 따라갈 길이 영영 막힌다.
+ */
+const handleSystemSchemeChange = ({ matches }) => {
+  if (readStoredTheme()) return;
+
+  setState({ theme: matches ? 'dark' : 'light' });
+};
+
 export const initTheme = () => {
   toggleButton = $('#theme-toggle');
 
   setState({ theme: resolveInitialTheme() });
   toggleButton.addEventListener('click', handleToggleClick);
+  systemScheme.addEventListener('change', handleSystemSchemeChange);
 };
 
 /** 상태를 받아 화면에만 반영한다. 여기서 상태를 바꾸지 않는다. */
