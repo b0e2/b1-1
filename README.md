@@ -22,7 +22,7 @@ HTML, CSS, JavaScript로 만든 반응형 포트폴리오입니다. 외부 UI·J
 | 기능 | 동작 | 구현 |
 | --- | --- | --- |
 | 다크 모드 | 토글로 전환하고 `localStorage`에 저장해 새로고침 후에도 유지 | `js/features/theme.js` |
-| 시스템 테마 추종 | 저장된 선택이 없으면 시스템 설정을 따르고, 여는 도중 바뀌어도 즉시 반영 | `js/features/theme.js` |
+| 시스템 테마 추종 | 여는 도중 운영체제 설정이 바뀌면 화면과 토글 표시가 함께 따라감 | `js/features/theme.js` |
 | 햄버거 메뉴 | 768px 미만에서 버튼 노출, `classList.toggle('active')`로 열고 닫음, Escape로 닫힘 | `js/features/navigation.js` |
 | 부드러운 스크롤 | 앵커 기본 이동을 막고 `scrollIntoView`로 이동한 뒤 대상 섹션에 포커스 | `js/features/navigation.js` |
 | 스크롤 탑 버튼 | 320px를 넘으면 나타나고 클릭 시 맨 위로 | `js/features/navigation.js` |
@@ -71,10 +71,9 @@ const handleToggleClick = () => {
   applyTheme(theme === 'dark' ? 'light' : 'dark');  // setState + localStorage 저장
 };
 
-// 상태 변경 — 시스템 설정은 저장하지 않는다
+// 상태 변경 — 시스템 설정도 같은 경로를 쓴다
 const handleSystemSchemeChange = ({ matches }) => {
-  if (readStoredTheme()) return;                    // 직접 고른 값이 우선
-  setState({ theme: matches ? 'dark' : 'light' });
+  applyTheme(matches ? 'dark' : 'light');           // 마지막 신호가 이긴다
 };
 
 // 렌더
@@ -204,18 +203,23 @@ js/github-api.js — 캐시 우선순위
 
 | 키 | 값 | 쓰는 곳 |
 | --- | --- | --- |
-| `portfolio-theme` | `light` \| `dark` | `js/features/theme.js` |
+| `portfolio-theme` | `light` \| `dark` — 마지막으로 정해진 테마 | `js/features/theme.js` |
 | `portfolio-repos:b0e2` | `{ savedAt, repositories }` | `js/github-api.js` |
 
-### 테마 우선순위
+### 테마가 정해지는 규칙
+
+**마지막에 들어온 신호가 지금 테마입니다.** 토글 버튼을 누르는 것도, 운영체제 설정을 바꾸는 것도 사용자가 직접 한 행동이므로 둘을 같은 무게로 봅니다.
 
 | 상황 | 결과 |
 | --- | --- |
-| 저장값 없음 | 시스템 설정(`prefers-color-scheme`)을 따릅니다 |
-| 저장값 없이 여는 도중 시스템 설정이 바뀜 | 새로고침 없이 즉시 따라갑니다 |
-| 토글 버튼을 눌러 직접 고름 | 그 선택이 저장되고, 이후 시스템 설정보다 우선합니다 |
+| 저장값 없이 첫 방문 | 시스템 설정(`prefers-color-scheme`)을 따릅니다 |
+| 토글 버튼을 누름 | 그 선택이 지금 테마가 되고 저장됩니다 |
+| 여는 도중 시스템 설정이 바뀜 | 저장값이 있어도 따라가고, 그 값이 저장됩니다 |
+| 새로고침 | 마지막 신호를 그대로 이어갑니다 |
 
-직접 고른 뒤에는 시스템 설정을 바꿔도 화면이 그대로입니다. 사용자가 명시적으로 정한 값을 시스템 설정이 덮어쓰지 않도록 한 것입니다.
+토글 버튼 문구는 `[data-theme]`로 그리므로 어느 경로로 바뀌든 함께 갱신됩니다.
+
+저장된 선택을 시스템 설정보다 우선하는 방식도 있지만 쓰지 않았습니다. 그렇게 하면 토글을 한 번 누른 뒤로는 시스템을 따라갈 길이 없어지는데, 그 상태를 푸는 방법이 화면에 없어 왜 안 바뀌는지 알 수 없게 됩니다.
 
 모션 축소 설정에서는 타이핑, 커서 blink, 등장 이동, 부드러운 이동과 카드 화살표 움직임을 멈춥니다.
 
